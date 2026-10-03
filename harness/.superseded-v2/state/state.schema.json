@@ -1,0 +1,435 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/bhaskarbhaumik/vantage/main/harness/.superseded-v2/state/state.schema.json",
+  "title": "AID Canonical State — Schema 2.1",
+  "description": "State contract for the AID v2.1 parallel harness. Extends aid-prompt-v2.md Schema 2.0 with: fragment provenance (every register row records which agent minted it), evidence-audit verdicts, ID block allocation, and the Evidence Quality Index. Phases append, never rewrite. IDs are append-only and globally unique.",
+  "type": "object",
+  "required": ["schema_version", "meta", "sources", "claims"],
+  "additionalProperties": false,
+
+  "properties": {
+    "schema_version": { "const": "2.1" },
+
+    "meta": {
+      "type": "object",
+      "required": ["client_legal_name", "listing_status", "research_as_of", "required_depth"],
+      "properties": {
+        "client_legal_name":   { "type": "string" },
+        "client_common_name":  { "type": "string" },
+        "listing_status":      { "enum": ["public", "private", "subsidiary", "government", "nonprofit"] },
+        "ticker":              { "type": ["string", "null"], "description": "e.g. 'NYSE:XYZ'; null when not listed" },
+        "primary_geography":   { "type": "string" },
+        "vertical_module":     { "enum": ["V-HLS", "V-BFSI", "V-RCG", "V-ENR", "V-MFG", "V-TMT", "V-TTH", "V-GOV", "NONE"] },
+        "vertical_confidence": { "$ref": "#/$defs/confidence" },
+        "vertical_basis":      { "type": "string", "description": "Why this module was selected; required when a conglomerate made the choice non-obvious" },
+        "research_as_of":      { "type": "string", "format": "date" },
+        "required_depth":      { "enum": ["BRIEF", "STANDARD", "DEEP"] },
+        "fiscal_year_end":     { "type": "string", "description": "e.g. '2026-01-31' or 'Sunday closest to Sept 30'" },
+        "latest_fy_label":     { "type": "string", "description": "Human label, e.g. 'FY2026 (ended Jan 2026)'" },
+        "account_context_provided":       { "type": "boolean" },
+        "relationship_context_provided": { "type": "boolean" },
+        "stage_completed":     { "type": "integer", "minimum": 0, "maximum": 6 },
+        "stages_history": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "stage":        { "type": "integer" },
+              "agents":       { "type": "array", "items": { "type": "string" } },
+              "completed_at": { "type": "string" },
+              "note":         { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+
+    "id_blocks": {
+      "type": "object",
+      "description": "Block allocation actually in force for this run. Mirrors prompts/id-allocation.md. QA check F1c validates every minted ID against this map.",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["block_start", "block_end"],
+        "properties": {
+          "block_start":  { "type": "integer" },
+          "block_end":    { "type": "integer" },
+          "sections":     { "type": "array", "items": { "type": "string" } },
+          "sole_owner_of":{ "type": "array", "items": { "type": "string" }, "description": "Register prefixes only this agent may mint, e.g. ['O-','U-']" }
+        }
+      }
+    },
+
+    "canonical_facts": {
+      "type": "object",
+      "description": "Settled facts every downstream agent may rely on without re-research. Values follow the value-object pattern. A Stage-1 agent PROPOSES facts in its fragment; the orchestrator promotes them here only when no peer disagrees — a disagreement becomes a contradiction instead (QA F10f).",
+      "additionalProperties": { "$ref": "#/$defs/valueObject" }
+    },
+
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "tier", "title", "accessed", "access_basis", "minted_by"],
+        "additionalProperties": false,
+        "properties": {
+          "id":           { "type": "string", "pattern": "^S-[0-9]{3,4}$" },
+          "tier":         { "enum": ["T1", "T2", "T3", "T4", "T5"] },
+          "title":        { "type": "string" },
+          "publisher":    { "type": "string" },
+          "pub_date":     { "type": ["string", "null"] },
+          "url":          { "type": ["string", "null"] },
+          "accessed":     { "type": "string", "format": "date" },
+          "reliability":  { "enum": ["High", "Medium", "Low"] },
+          "access_basis": {
+            "enum": ["direct", "secondary-summary"],
+            "description": "'secondary-summary' is mandatory when the content itself was paywalled or inaccessible and the claim rests on public reporting of it. QA F1e fails any named subscription database cited with access_basis 'direct' unless genuinely retrieved."
+          },
+          "minted_by":    { "type": "string", "description": "Agent label" },
+          "superseded_by":{ "type": ["string", "null"], "description": "Set by source-merge when this row duplicates another document" }
+        }
+      }
+    },
+
+    "claims": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "section", "statement", "sources", "confidence", "materiality", "minted_by"],
+        "additionalProperties": false,
+        "properties": {
+          "id":          { "type": "string", "pattern": "^C-[0-9]+\\.[0-9]+-[0-9]{2}$" },
+          "type":        { "enum": ["FACT", "TRIANGULATED", "INFERENCE", "ESTIMATE", "UNVERIFIED"] },
+          "section":     { "type": "string" },
+          "statement":   { "type": "string" },
+          "sources":     { "type": "array", "minItems": 1, "items": { "type": "string" } },
+          "basis":       { "type": "string", "description": "Required when type is INFERENCE or ESTIMATE" },
+          "confidence":  { "$ref": "#/$defs/confidence" },
+          "recency":     { "type": "string" },
+          "stale":       { "type": "boolean", "default": false },
+          "materiality": { "enum": ["high", "medium", "low"] },
+          "minted_by":   { "type": "string" },
+          "audit": {
+            "type": "object",
+            "description": "Written by the evidence-audit agent. A refuted high-materiality claim MUST be downgraded, converted to a gap, or removed before Tier 3 consumes it (QA F3f).",
+            "properties": {
+              "verdict":   { "enum": ["CONFIRMED", "WEAKENED", "REFUTED", "NOT_AUDITED"] },
+              "rationale": { "type": "string" },
+              "action":    { "enum": ["kept", "downgraded", "converted-to-gap", "removed", "none"] }
+            }
+          }
+        },
+        "allOf": [{
+          "if":   { "properties": { "type": { "enum": ["INFERENCE", "ESTIMATE"] } } },
+          "then": { "required": ["basis"] }
+        }, {
+          "if":   { "properties": { "type": { "const": "TRIANGULATED" } } },
+          "then": { "properties": { "sources": { "minItems": 2 } } }
+        }]
+      }
+    },
+
+    "contradictions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "topic", "positions", "status"],
+        "properties": {
+          "id":    { "type": "string", "pattern": "^X-[0-9]{3,4}$" },
+          "topic": { "type": "string" },
+          "positions": {
+            "type": "array", "minItems": 2,
+            "items": {
+              "type": "object",
+              "properties": {
+                "value":  { "type": "string" },
+                "source": { "type": "string" },
+                "agent":  { "type": "string", "description": "Which agent reported this position — populated for cross-agent disagreements (F10f)" }
+              }
+            }
+          },
+          "resolution":  { "type": ["string", "null"], "description": "Name the rule applied, e.g. 'recent-primary: S-004 (10-K) adopted'" },
+          "status":      { "enum": ["resolved", "open"] },
+          "kind":        { "enum": ["source-conflict", "cross-agent"], "default": "source-conflict" },
+          "minted_by":   { "type": "string" }
+        }
+      }
+    },
+
+    "data_gaps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "item", "section", "resolution_path", "materiality"],
+        "properties": {
+          "id":               { "type": "string", "pattern": "^G-[0-9]{3,4}$" },
+          "item":             { "type": "string" },
+          "section":          { "type": "string" },
+          "queries_attempted":{ "type": "integer" },
+          "best_available":   { "type": "string" },
+          "resolution_path":  { "enum": ["retry-later", "account-team-validation", "accept-unknown"] },
+          "materiality":      { "enum": ["high", "medium", "low"] },
+          "validation_question": { "type": ["string", "null"], "description": "Q-nnn — mandatory when materiality is high (QA F7e)" },
+          "minted_by":        { "type": "string" }
+        }
+      }
+    },
+
+    "open_questions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id":       { "type": "string", "pattern": "^Q-[0-9]{3,4}$" },
+          "question": { "type": "string" },
+          "owner":    { "type": "string", "description": "Agent label or 'account-team'" },
+          "status":   { "type": "string", "description": "'open' or 'answered:C-6.1-05'" }
+        }
+      }
+    },
+
+    "stakeholders": {
+      "type": "array",
+      "description": "Sole owner: the leadership agent.",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "title", "sources"],
+        "properties": {
+          "id":       { "type": "string", "pattern": "^P-[0-9]{2}$" },
+          "name":     { "type": "string" },
+          "title":    { "type": "string" },
+          "as_of":    { "type": "string" },
+          "sources":  { "type": "array", "minItems": 1, "items": { "type": "string" } },
+          "stated_priorities": { "type": "array", "items": { "type": "string" }, "description": "Claim IDs" },
+          "influence":     { "enum": ["High", "Medium", "Low"] },
+          "influence_basis": { "type": "string" },
+          "accessibility": { "enum": ["High", "Medium", "Low"] },
+          "accessibility_basis": { "type": "string", "description": "Mandatory. Model 6 requires an explicit basis on both axes." }
+        }
+      }
+    },
+
+    "risks": {
+      "type": "array",
+      "description": "Sole owner: the risk-reg agent.",
+      "items": {
+        "type": "object",
+        "required": ["id", "risk", "category", "sources"],
+        "properties": {
+          "id":         { "type": "string", "pattern": "^R-[0-9]{2}$" },
+          "risk":       { "type": "string" },
+          "category":   { "enum": ["strategic", "financial", "operational", "regulatory", "cyber", "esg", "geopolitical", "reputational"] },
+          "severity":   { "enum": ["High", "Medium", "Low"] },
+          "likelihood": { "enum": ["High", "Medium", "Low"] },
+          "sources":    { "type": "array", "items": { "type": "string" } },
+          "pursuit_implication": { "type": "string", "description": "Populated in §10.5 — how this client risk becomes an organization delivery or commercial risk" }
+        }
+      }
+    },
+
+    "opportunities": {
+      "type": "array",
+      "description": "Sole owner: the opportunity agent.",
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "need_evidence", "status"],
+        "properties": {
+          "id":            { "type": "string", "pattern": "^O-[0-9]{2}$" },
+          "title":         { "type": "string" },
+          "need_evidence": { "type": "array", "minItems": 1, "items": { "type": "string" }, "description": "Claim IDs that survived evidence-audit" },
+          "status":        { "enum": ["CONFIRMED", "HYPOTHESIS", "VALIDATE"] },
+          "attractiveness":  { "$ref": "#/$defs/score" },
+          "win_probability": { "$ref": "#/$defs/score" },
+          "sizing": {
+            "type": "object",
+            "properties": {
+              "basis":      { "type": "string", "description": "e.g. 'ESTIMATE: benchmark method' or 'client-disclosed programme budget [S-407]'" },
+              "range_musd": { "type": "array", "minItems": 2, "maxItems": 2, "items": { "type": "number" } }
+            }
+          },
+          "horizon":       { "enum": ["0-6m", "6-18m", "18m+"] },
+          "lead_practice": { "type": "string" }
+        }
+      }
+    },
+
+    "use_cases": {
+      "type": "array",
+      "description": "Sole owner: the opportunity agent. §11.2 AI/agentic backlog.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id":          { "type": "string", "pattern": "^U-[0-9]{2}$" },
+          "use_case":    { "type": "string" },
+          "paradigm":    { "type": "string", "description": "e.g. 'Agentic+RAG', 'Classical ML', 'Document AI'" },
+          "domain":      { "type": "string" },
+          "impact":      { "type": "integer", "minimum": 1, "maximum": 5 },
+          "feasibility": { "type": "integer", "minimum": 1, "maximum": 5 },
+          "evidence":    { "type": "array", "items": { "type": "string" } },
+          "hitl":        { "enum": ["Required", "Recommended", "Optional"] },
+          "status":      { "enum": ["CONFIRMED", "HYPOTHESIS", "VALIDATE"] }
+        }
+      }
+    },
+
+    "actions": {
+      "type": "array",
+      "description": "Sole owner: the engagement agent.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id":         { "type": "string", "pattern": "^A-[0-9]{2}$" },
+          "action":     { "type": "string" },
+          "owner_role": { "type": "string" },
+          "due":        { "type": "string" },
+          "metric":     { "type": "string" },
+          "horizon":    { "enum": ["30d", "90d", "180d"] },
+          "refs":       { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+
+    "visual_specs": {
+      "type": "array",
+      "description": "VZ-nnn. Renamed from v2.0's V-nn to avoid collision with V-<CODE> vertical modules. Collated into Appendix K.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id":              { "type": "string", "pattern": "^VZ-[0-9]{3,4}$" },
+          "decision_purpose":{ "type": "string", "description": "Which decision this visual supports. A visual with no decision purpose should not exist." },
+          "chart_type":      { "type": "string" },
+          "data_fields":     { "type": "array", "items": { "type": "string" } },
+          "sources":         { "type": "array", "items": { "type": "string" } },
+          "rendering_note":  { "type": "string" },
+          "section":         { "type": "string" }
+        }
+      }
+    },
+
+    "scoring_inputs": {
+      "type": "object",
+      "description": "One block per scoring model actually applied. Reproduced into Appendix G.",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "model":      { "type": "string" },
+          "scored_for": { "type": ["string", "null"], "description": "Entity scored, e.g. 'O-03' for per-opportunity models" },
+          "dimensions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name":       { "type": "string" },
+                "weight":     { "type": "number" },
+                "score":      { "oneOf": [{ "type": "integer", "minimum": 1, "maximum": 5 }, { "const": "n/e" }] },
+                "anchor_met": { "type": "string" },
+                "claims":     { "type": "array", "items": { "type": "string" } },
+                "confidence": { "$ref": "#/$defs/confidence" }
+              }
+            }
+          },
+          "reweighted":         { "type": "boolean", "description": "True when n/e dimensions forced a reweight; the applied weights must be shown" },
+          "composite":          { "type": ["number", "null"] },
+          "composite_suppressed": { "type": "boolean", "description": "True when >=2 dimensions are Low confidence. When true, composite MUST be null." },
+          "qualitative_assessment": { "type": ["string", "null"], "description": "Required when composite_suppressed is true" },
+          "band":               { "type": ["string", "null"] }
+        }
+      }
+    },
+
+    "evidence_quality": {
+      "type": "object",
+      "description": "NEW in v2.1. Computed by qa-gate from the merged claim register — not scored by judgment. Rendered in §0.5.",
+      "properties": {
+        "eqi":                    { "type": "number", "minimum": 0, "maximum": 100 },
+        "band":                   { "enum": ["Strong", "Adequate", "Thin", "Insufficient"] },
+        "claims_total":           { "type": "integer" },
+        "claims_primary_t1_t2":   { "type": "integer" },
+        "claims_high_confidence": { "type": "integer" },
+        "claims_medium_confidence": { "type": "integer" },
+        "claims_low_confidence":  { "type": "integer" },
+        "claims_stale":           { "type": "integer" },
+        "gaps_high_materiality_unresolved": { "type": "integer" }
+      }
+    },
+
+    "section_outputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "section": { "type": "string" },
+          "status":  { "enum": ["drafted", "gap-rendered", "not-triggered", "final"] },
+          "owner":   { "type": "string" },
+          "file":    { "type": "string" },
+          "words":   { "type": "integer" },
+          "envelope":{ "type": "integer" }
+        }
+      }
+    },
+
+    "research_log": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "query":       { "type": "string" },
+          "best_source": { "type": ["string", "null"], "description": "null records a failed query — which is exactly what Appendix H needs to justify a gap" },
+          "section":     { "type": "string" },
+          "agent":       { "type": "string" }
+        }
+      }
+    },
+
+    "qa": {
+      "type": "object",
+      "properties": {
+        "executed":   { "type": "boolean" },
+        "result":     { "enum": ["PASS", "PASS WITH DISCLOSURES", "FAIL"] },
+        "blockers":   { "type": "integer" },
+        "majors":     { "type": "integer" },
+        "minors":     { "type": "integer" },
+        "failures": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "check":       { "type": "string" },
+              "severity":    { "enum": ["BLOCKER", "MAJOR", "MINOR"] },
+              "detail":      { "type": "string" },
+              "remediation": { "type": "string" },
+              "final_state": { "enum": ["Fixed", "Downgraded", "Accepted", "Disclosed"] }
+            }
+          }
+        }
+      }
+    }
+  },
+
+  "$defs": {
+    "confidence": { "enum": ["High", "Medium", "Low"] },
+
+    "valueObject": {
+      "type": "object",
+      "required": ["value", "source"],
+      "properties": {
+        "value":      {},
+        "currency":   { "type": "string" },
+        "unit":       { "type": "string" },
+        "period":     { "type": "string" },
+        "basis":      { "enum": ["reported", "calculated", "estimated"] },
+        "source":     { "type": "string" },
+        "confidence": { "$ref": "#/$defs/confidence" },
+        "proposed_by":{ "type": "string" }
+      }
+    },
+
+    "score": {
+      "type": "object",
+      "properties": {
+        "score":      { "type": ["number", "null"] },
+        "confidence": { "$ref": "#/$defs/confidence" },
+        "suppressed": { "type": "boolean" }
+      }
+    }
+  }
+}

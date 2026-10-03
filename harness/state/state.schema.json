@@ -1,0 +1,551 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/bhaskarbhaumik/vantage/main/harness/state/state.schema.json",
+  "title": "Vantage run state (schema 3.0)",
+  "description": "The canonical run state. Implements the v3 handoff contract of aid-20260829.md, extended with the registers a parallel harness needs (id_blocks, single-owner registers, per-agent coverage records, evidence-audit verdicts). Agent fragments are a subset of this shape and are merged into it; the merged document is what §21 renders from.",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["schema_version", "run_contract"],
+  "properties": {
+    "schema_version": { "const": "3.0" },
+
+    "run_contract": {
+      "type": "object",
+      "description": "§0. Settled once by preflight; a hard gate on everything downstream.",
+      "required": ["target", "entity", "ownership_form", "jurisdictions", "tier", "as_of"],
+      "additionalProperties": true,
+      "properties": {
+        "target": { "type": "string", "description": "The requester's string, verbatim" },
+        "entity_candidates": {
+          "type": "array",
+          "description": "Candidates considered during resolution, with the disambiguation reasoning",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "identifier": { "type": ["string", "null"] },
+              "rejected_because": { "type": ["string", "null"] }
+            }
+          }
+        },
+        "entity": {
+          "type": "object",
+          "required": ["legal_name"],
+          "additionalProperties": true,
+          "properties": {
+            "legal_name": { "type": "string" },
+            "common_name": { "type": ["string", "null"] },
+            "lei": { "type": ["string", "null"] },
+            "cik": { "type": ["string", "null"] },
+            "registry_id": { "type": ["string", "null"] },
+            "ticker": { "type": ["string", "null"] },
+            "exchanges": { "type": "array", "items": { "type": "string" } },
+            "hq": { "type": ["string", "null"] },
+            "fy_end": { "type": ["string", "null"], "description": "Fiscal year end, month or MM-DD" },
+            "latest_fy_label": { "type": ["string", "null"] },
+            "ambiguity": { "type": ["string", "null"], "description": "Non-null when resolution required an assumption. A value here that preflight could not close is a STOP condition." }
+          }
+        },
+        "ownership_form": {
+          "enum": ["public", "private-vc", "private-pe", "soe", "subsidiary", "nonprofit", "cooperative", "partnership", "family-group"]
+        },
+        "jurisdictions": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "enum": ["us-sec", "canada", "uk-eu", "india", "japan", "korea", "hk", "sg", "au-nz", "brazil", "generic"] }
+        },
+        "reporting_standard": { "type": ["string", "null"], "description": "US GAAP | IFRS | local (named)" },
+        "languages": { "type": "array", "items": { "type": "string" }, "description": "BCP-47-ish codes actually used in research" },
+        "verticals": {
+          "type": "object",
+          "properties": {
+            "primary": { "$ref": "#/$defs/verticalCode" },
+            "secondary": { "type": "array", "items": { "$ref": "#/$defs/verticalCode" } },
+            "confidence": { "enum": ["High", "Medium", "Low"] },
+            "basis": { "type": ["string", "null"], "description": "Revenue/segment mix that drove the selection — not the classification code alone" }
+          }
+        },
+        "tier": { "enum": ["EXECUTIVE", "STANDARD", "FULL_ANNEX"] },
+        "fetch_budget": {
+          "type": "object",
+          "description": "Per-phase fetch budgets. The orchestrator may extend on a documented shortfall.",
+          "additionalProperties": { "type": "integer", "minimum": 0 }
+        },
+        "exclusions": { "type": "array", "items": { "type": "string" } },
+        "capability_pack": { "enum": ["ATTACHED", "NOT_ATTACHED"] },
+        "capability_pack_dated": { "type": ["string", "null"] },
+        "account_team_input_sheet": { "enum": ["ATTACHED", "NOT_ATTACHED"] },
+        "precomputed_financials": { "enum": ["ATTACHED", "NOT_ATTACHED"] },
+        "as_of": { "type": "string", "description": "Research as-of date, ISO 8601" }
+      }
+    },
+
+    "phase_completed": { "type": ["string", "integer"], "description": "Last completed harness step (P0..P8)" },
+    "sections_complete": { "type": "array", "items": { "type": "string" } },
+
+    "id_blocks": {
+      "type": "object",
+      "description": "Copied from prompts/id-allocation.md so V1c can be checked mechanically.",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["block_start", "block_end"],
+        "properties": {
+          "block_start": { "type": "integer" },
+          "block_end": { "type": "integer" },
+          "sections": { "type": "array", "items": { "type": "string" } },
+          "mints": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+
+    "source_manifest": { "type": "array", "items": { "$ref": "#/$defs/source" } },
+    "claim_ledger": { "type": "array", "items": { "$ref": "#/$defs/claim" } },
+    "contradictions": { "type": "array", "items": { "$ref": "#/$defs/contradiction" } },
+    "data_gaps": { "type": "array", "items": { "$ref": "#/$defs/gap" } },
+    "open_questions": { "type": "array", "items": { "$ref": "#/$defs/question" } },
+    "coverage": { "type": "array", "items": { "$ref": "#/$defs/coverage" } },
+
+    "carry_forward_facts": {
+      "type": "object",
+      "description": "Canonical facts every agent must use rather than re-deriving. A disagreement here is V10f, the signature failure of a parallel harness.",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["value"],
+        "properties": {
+          "value": {},
+          "currency": { "type": ["string", "null"] },
+          "unit": { "type": ["string", "null"] },
+          "as_of": { "type": ["string", "null"] },
+          "basis": { "type": ["string", "null"], "description": "reported | adjusted | restated | estimated" },
+          "entity": { "type": ["string", "null"], "description": "Which legal entity from §3.6 this attaches to" },
+          "source": { "type": ["string", "null"] },
+          "confidence": { "$ref": "#/$defs/confidence" },
+          "contested": { "type": "boolean", "default": false, "description": "True when peers disagreed. A contested fact is OMITTED from downstream use, not averaged." }
+        }
+      }
+    },
+
+    "precomputed_financials": {
+      "type": ["object", "null"],
+      "description": "Produced by `backbone` from XBRL. The numeric source of truth for §6 and §21.3 (V2a).",
+      "properties": {
+        "basis": { "type": ["string", "null"] },
+        "currency": { "type": ["string", "null"] },
+        "unit": { "type": ["string", "null"] },
+        "source": { "type": ["string", "null"], "description": "Source id of the XBRL feed used" },
+        "periods": { "type": "array", "items": { "type": "string" } },
+        "statements": {
+          "type": "object",
+          "description": "Line item -> { period: value }",
+          "additionalProperties": { "type": "object", "additionalProperties": { "type": ["number", "null"] } }
+        },
+        "derived": {
+          "type": "object",
+          "description": "Metric -> { period: value }. Computed deterministically, never by the model.",
+          "additionalProperties": { "type": "object", "additionalProperties": { "type": ["number", "null"] } }
+        },
+        "unavailable_reason": { "type": ["string", "null"], "description": "Set when XBRL was not available; §6 then recomputes from stated filing figures with inputs shown." }
+      }
+    },
+
+    "stakeholders": { "type": "array", "items": { "$ref": "#/$defs/stakeholder" } },
+    "risks": { "type": "array", "items": { "$ref": "#/$defs/risk" } },
+    "opportunities": { "type": "array", "items": { "$ref": "#/$defs/opportunity" } },
+    "use_cases": { "type": "array", "items": { "$ref": "#/$defs/useCase" } },
+    "actions": { "type": "array", "items": { "$ref": "#/$defs/action" } },
+    "visuals": { "type": "array", "items": { "$ref": "#/$defs/visual" } },
+    "peer_set": {
+      "type": ["object", "null"],
+      "description": "§11.0. Fixed once by `competition`; binding on every agent that benchmarks.",
+      "properties": {
+        "candidate_universe": { "type": "array", "items": { "type": "string" } },
+        "selected": { "type": "array", "items": { "type": "string" } },
+        "dimensions": { "type": "array", "items": { "type": "string" } },
+        "exclusions": { "type": "array", "items": { "type": "string" } },
+        "normalization": { "type": ["string", "null"] },
+        "vintage": { "type": ["string", "null"] }
+      }
+    },
+
+    "scoring_inputs": {
+      "type": "object",
+      "description": "Model name -> scorecard. Reproduced into §21.8.",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "model": { "type": "string" },
+          "dimensions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": { "type": "string" },
+                "weight": { "type": ["number", "null"] },
+                "score": { "type": ["number", "string", "null"], "description": "Numeric, or \"n/e\" when not evidenced" },
+                "evidence": { "type": "array", "items": { "type": "string" } },
+                "confidence": { "$ref": "#/$defs/confidence" }
+              }
+            }
+          },
+          "composite": { "type": ["number", "null"] },
+          "composite_suppressed": { "type": "boolean", "default": false },
+          "renormalized_from": { "type": ["number", "null"], "description": "Total weight before dropping n/e dimensions" },
+          "band": { "type": ["string", "null"] },
+          "not_reliably_assessable_reason": { "type": ["string", "null"] }
+        }
+      }
+    },
+
+    "account_team_input": {
+      "type": ["object", "null"],
+      "description": "§21.10. When null, every gated field renders [INTERNAL REQUIRED] (V5b, V8f)."
+    },
+    "capability_pack": {
+      "type": ["object", "null"],
+      "description": "The dated Capability Pack. When null, every organization capability claim renders [INTERNAL: validate with practice] (V7b)."
+    },
+
+    "section_outputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["section", "owner"],
+        "properties": {
+          "section": { "type": "string" },
+          "owner": { "type": "string" },
+          "file": { "type": ["string", "null"] },
+          "status": { "enum": ["written", "gap-rendered", "not-triggered", "structurally-inapplicable", "missing"] },
+          "words": { "type": ["integer", "null"] },
+          "as_of": { "type": ["string", "null"] }
+        }
+      }
+    },
+
+    "research_log": {
+      "type": "array",
+      "description": "Recorded by the harness, not reconstructed from memory.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "agent": { "type": "string" },
+          "tool": { "type": ["string", "null"] },
+          "query": { "type": ["string", "null"] },
+          "best_source": { "type": ["string", "null"] },
+          "section": { "type": ["string", "null"] }
+        }
+      }
+    },
+
+    "evidence_audit": {
+      "type": ["object", "null"],
+      "description": "Adversarial audit output. The refuted list is BINDING on §18 (V3f).",
+      "properties": {
+        "verdicts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["claim_id", "verdict"],
+            "properties": {
+              "claim_id": { "type": "string" },
+              "verdict": { "enum": ["CONFIRMED", "WEAKENED", "REFUTED"] },
+              "rationale": { "type": ["string", "null"] },
+              "downgraded_to": { "$ref": "#/$defs/confidence" },
+              "new_status": { "$ref": "#/$defs/evidenceStatus" }
+            }
+          }
+        },
+        "refuted": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+
+    "verification": {
+      "type": "object",
+      "description": "The Verification Pass result. The six spec-mandated checks plus the harness families.",
+      "properties": {
+        "result": { "enum": ["PASS", "PASS WITH DISCLOSURES", "FAIL", "not run"] },
+        "numeric": { "$ref": "#/$defs/checkState" },
+        "claims": { "$ref": "#/$defs/checkState" },
+        "contradiction": { "$ref": "#/$defs/checkState" },
+        "entity": { "$ref": "#/$defs/checkState" },
+        "status_honesty": { "$ref": "#/$defs/checkState" },
+        "coverage": { "$ref": "#/$defs/checkState" },
+        "blockers": { "type": "integer", "minimum": 0 },
+        "majors": { "type": "integer", "minimum": 0 },
+        "minors": { "type": "integer", "minimum": 0 },
+        "checks_executed": { "type": "integer", "minimum": 0 },
+        "checks_passed": { "type": "integer", "minimum": 0 },
+        "eqi": { "type": ["number", "null"], "minimum": 0, "maximum": 100 },
+        "overall_confidence": { "enum": ["Strong", "Adequate", "Thin", "Insufficient", null] },
+        "eqi_components": {
+          "type": "object",
+          "additionalProperties": { "type": ["number", "null"] }
+        },
+        "disclosed_failures": { "type": "array", "items": { "type": "string" } },
+        "budget_limited_topics": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+
+    "handoff": {
+      "type": "array",
+      "description": "Cross-agent routing. The only sanctioned way to affect another agent's section.",
+      "items": {
+        "type": "object",
+        "required": ["to", "note"],
+        "properties": {
+          "from": { "type": ["string", "null"] },
+          "to": { "type": "string" },
+          "note": { "type": "string" },
+          "refs": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
+  },
+
+  "$defs": {
+    "confidence": { "enum": ["HIGH", "MEDIUM", "LOW", null] },
+    "evidenceStatus": { "enum": ["CONFIRMED", "ANNOUNCED", "OBSERVED-SIGNAL", "INFERRED", "UNKNOWN", null] },
+    "materiality": { "enum": ["high", "medium", "low"] },
+    "checkState": { "enum": ["pass", "fail", "partial", "pending"] },
+    "verticalCode": {
+      "enum": ["V-HLS", "V-BFSI", "V-RCG", "V-ENR", "V-MFG", "V-TMT", "V-TTH", "V-GOV", "V-AND", "V-REC", "V-PSE", "NONE"]
+    },
+
+    "source": {
+      "type": "object",
+      "required": ["id"],
+      "additionalProperties": true,
+      "properties": {
+        "id": { "type": "string", "pattern": "^S-[0-9]{4}$" },
+        "title": { "type": ["string", "null"] },
+        "publisher": { "type": ["string", "null"] },
+        "doc_id": { "type": ["string", "null"], "description": "Accession number, filing ID, DOI, docket number" },
+        "pub_date": { "type": ["string", "null"] },
+        "accessed": { "type": ["string", "null"] },
+        "url": { "type": ["string", "null"], "description": "Only a URL that was fetched or returned verbatim by a search tool. Never constructed (V1d)." },
+        "archived_url": { "type": ["string", "null"], "description": "Wayback snapshot for load-bearing, changeable evidence" },
+        "language": { "type": ["string", "null"] },
+        "retrieval_status": { "enum": ["ok", "partial", "paywall", "blocked", "dead", "parse_error", "not_attempted"] },
+        "retrieval_note": { "type": ["string", "null"], "description": "Required when status is not ok: what was missing, and the alternative attempted" },
+        "tier": { "type": ["integer", "null"], "minimum": 1, "maximum": 5 },
+        "provenance_class": { "enum": ["official", "third-party", "machine", "regulator", "court", "n/a", null] },
+        "independence": { "enum": ["governing", "independent", "self-reported", null] },
+        "sections": { "type": "array", "items": { "type": "string" } },
+        "minted_by": { "type": ["string", "null"] }
+      }
+    },
+
+    "claim": {
+      "type": "object",
+      "required": ["id"],
+      "additionalProperties": true,
+      "properties": {
+        "id": { "type": "string", "pattern": "^C-[0-9]+(\\.[0-9]+)*-[0-9]{2}$" },
+        "claim": { "type": ["string", "null"] },
+        "section": { "type": ["string", "null"] },
+        "sources": { "type": "array", "items": { "type": "string" } },
+        "locators": { "type": "array", "items": { "type": "string" }, "description": "Pinpoints, e.g. \"S-0301 §Item 1A\"" },
+        "status": { "$ref": "#/$defs/evidenceStatus" },
+        "confidence": { "$ref": "#/$defs/confidence" },
+        "dimensions": {
+          "type": "object",
+          "description": "The six confidence dimensions, recorded so V3c can re-derive the composite rather than trust it.",
+          "properties": {
+            "authority": { "enum": ["high", "medium", "low", null] },
+            "independence": { "enum": ["governing", "independent", "self-reported", null] },
+            "directness": { "enum": ["primary", "secondary", "commentary", null] },
+            "corroboration": { "type": ["integer", "null"], "minimum": 0 },
+            "recency": { "enum": ["current", "aging", "stale", null] },
+            "entity_match": { "enum": ["certain", "probable", "ambiguous", null] }
+          }
+        },
+        "entity": { "type": ["string", "null"], "description": "The §3.6 entity this fact attaches to" },
+        "materiality": { "$ref": "#/$defs/materiality" },
+        "verification_method": { "type": ["string", "null"] },
+        "audit_verdict": { "enum": ["CONFIRMED", "WEAKENED", "REFUTED", null] },
+        "minted_by": { "type": ["string", "null"] }
+      }
+    },
+
+    "gap": {
+      "type": "object",
+      "required": ["id"],
+      "additionalProperties": true,
+      "properties": {
+        "id": { "type": "string", "pattern": "^G-[0-9]{4}$" },
+        "item": { "type": ["string", "null"] },
+        "section": { "type": ["string", "null"] },
+        "searched": { "type": "array", "items": { "type": "string" }, "description": "Source classes actually searched" },
+        "queries_tried": { "type": "array", "items": { "type": "string" } },
+        "languages": { "type": "array", "items": { "type": "string" } },
+        "date_range": { "type": ["string", "null"] },
+        "best_available": { "type": ["string", "null"] },
+        "resolution_path": { "enum": ["account-team-validation", "retry-later", "paid-source-required", "accept-unknown", "structurally-inapplicable"] },
+        "materiality": { "$ref": "#/$defs/materiality" },
+        "minted_by": { "type": ["string", "null"] }
+      }
+    },
+
+    "contradiction": {
+      "type": "object",
+      "required": ["id"],
+      "additionalProperties": true,
+      "properties": {
+        "id": { "type": "string", "pattern": "^X-[0-9]{4}$" },
+        "topic": { "type": ["string", "null"] },
+        "kind": { "enum": ["source-conflict", "cross-agent", "canonical-fact", "temporal"] },
+        "positions": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "object",
+            "properties": {
+              "value": {},
+              "sources": { "type": "array", "items": { "type": "string" } },
+              "claims": { "type": "array", "items": { "type": "string" } },
+              "as_of": { "type": ["string", "null"] }
+            }
+          }
+        },
+        "resolution": { "type": ["string", "null"] },
+        "rationale": { "type": ["string", "null"], "description": "Why the surviving value governs — the claim-sensitive source rule applied" },
+        "decision_impact": { "type": ["string", "null"] },
+        "status": { "enum": ["open", "resolved", "superseded"] },
+        "minted_by": { "type": ["string", "null"] }
+      }
+    },
+
+    "question": {
+      "type": "object",
+      "required": ["id"],
+      "additionalProperties": true,
+      "properties": {
+        "id": { "type": "string", "pattern": "^Q-[0-9]{4}$" },
+        "question": { "type": ["string", "null"] },
+        "owner": { "type": ["string", "null"] },
+        "section": { "type": ["string", "null"] },
+        "blocks": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+
+    "coverage": {
+      "type": "object",
+      "required": ["section", "stop_reason"],
+      "additionalProperties": true,
+      "properties": {
+        "section": { "type": "string" },
+        "expected": { "type": "array", "items": { "type": "string" }, "description": "Source classes the jurisdiction adapter and vertical module say should exist" },
+        "retrieved": { "type": "array", "items": { "type": "string" } },
+        "queries": { "type": ["integer", "null"], "minimum": 0 },
+        "fetches": { "type": ["integer", "null"], "minimum": 0 },
+        "stop_reason": { "enum": ["diminishing_returns", "budget", "not_applicable"] },
+        "residual_risk": { "type": ["string", "null"] }
+      }
+    },
+
+    "stakeholder": {
+      "type": "object",
+      "required": ["id"],
+      "additionalProperties": true,
+      "properties": {
+        "id": { "type": "string", "pattern": "^P-[0-9]{2}$" },
+        "name": { "type": ["string", "null"] },
+        "title": { "type": ["string", "null"] },
+        "entity": { "type": ["string", "null"] },
+        "influence": { "type": ["integer", "null"], "minimum": 1, "maximum": 5 },
+        "influence_basis": { "type": ["string", "null"] },
+        "accessibility": { "type": ["integer", "null"], "minimum": 1, "maximum": 5 },
+        "accessibility_basis": { "type": ["string", "null"], "description": "Public evidence caps this at 3; 4-5 require account-team input" },
+        "evidenced": { "type": "boolean" },
+        "sources": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+
+    "risk": {
+      "type": "object",
+      "required": ["id"],
+      "additionalProperties": true,
+      "properties": {
+        "id": { "type": "string", "pattern": "^R-[0-9]{2}$" },
+        "risk": { "type": ["string", "null"] },
+        "category": { "enum": ["strategic", "financial", "operational", "regulatory", "cyber", "geopolitical", "reputational", "esg", "legal", "delivery"] },
+        "severity": { "type": ["integer", "null"], "minimum": 1, "maximum": 5 },
+        "likelihood": { "type": ["integer", "null"], "minimum": 1, "maximum": 5 },
+        "pursuit_implication": { "type": ["string", "null"] },
+        "sources": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+
+    "opportunity": {
+      "type": "object",
+      "required": ["id"],
+      "additionalProperties": true,
+      "properties": {
+        "id": { "type": "string", "pattern": "^O-[0-9]{2}$" },
+        "title": { "type": ["string", "null"] },
+        "service_line": { "type": ["string", "null"] },
+        "need_evidence": { "type": "array", "items": { "type": "string" }, "description": "Claim IDs. Each must have survived evidence-audit (V3f)." },
+        "sizing": {
+          "type": "object",
+          "properties": {
+            "basis": { "type": ["string", "null"] },
+            "range_musd": { "type": "array", "items": { "type": ["number", "null"] }, "minItems": 2, "maxItems": 2 },
+            "horizon_years": { "type": ["integer", "null"] }
+          }
+        },
+        "attractiveness": { "type": ["number", "null"], "minimum": 1, "maximum": 5 },
+        "win_probability": { "type": ["number", "string", "null"], "description": "Number only from the Account-Team Input Sheet; otherwise the literal \"[INTERNAL REQUIRED]\"" },
+        "horizon": { "enum": ["0-6m", "6-18m", "18m+", null] },
+        "lead_practice": { "type": ["string", "null"] },
+        "status": { "enum": ["CONFIRMED", "HYPOTHESIS", "VALIDATE"] },
+        "confidence": { "$ref": "#/$defs/confidence" }
+      }
+    },
+
+    "useCase": {
+      "type": "object",
+      "required": ["id"],
+      "additionalProperties": true,
+      "properties": {
+        "id": { "type": "string", "pattern": "^U-[0-9]{2}$" },
+        "title": { "type": ["string", "null"] },
+        "anchor_claims": { "type": "array", "items": { "type": "string" }, "description": "§7.5 pain point or §9.1 priority. A use case with no anchor is filler and is deleted." },
+        "paradigm": { "enum": ["analytical", "generative", "agentic", "automation", null] },
+        "impact": { "type": ["integer", "null"], "minimum": 1, "maximum": 5 },
+        "feasibility": { "type": ["integer", "null"], "minimum": 1, "maximum": 5 },
+        "hitl": { "enum": ["Required", "Recommended", "Optional", null] },
+        "accelerator_fit": { "type": ["string", "null"] }
+      }
+    },
+
+    "action": {
+      "type": "object",
+      "required": ["id"],
+      "additionalProperties": true,
+      "properties": {
+        "id": { "type": "string", "pattern": "^A-[0-9]{2}$" },
+        "action": { "type": ["string", "null"] },
+        "owner_role": { "type": ["string", "null"] },
+        "due": { "type": ["string", "null"] },
+        "success_metric": { "type": ["string", "null"] },
+        "horizon": { "enum": ["0-6m", "6-18m", "18m+", null] },
+        "refs": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+
+    "visual": {
+      "type": "object",
+      "required": ["id", "kind"],
+      "additionalProperties": true,
+      "properties": {
+        "id": { "type": "string", "description": "C-<sec>.<n> for charts, F-<sec>.<n> for figures" },
+        "kind": { "enum": ["chart-data", "figure-spec"] },
+        "section": { "type": ["string", "null"] },
+        "title": { "type": ["string", "null"] },
+        "type": { "type": ["string", "null"] },
+        "sources": { "type": "array", "items": { "type": "string" } },
+        "valid": { "type": ["boolean", "null"], "description": "Set by the renderer's schema validation after the run, not by the writing agent" },
+        "validation_error": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

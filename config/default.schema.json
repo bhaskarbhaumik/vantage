@@ -1,0 +1,704 @@
+{
+  "$defs": {
+    "AuthCfg": {
+      "additionalProperties": false,
+      "description": "Subscription-first credential policy. See ``vantage.auth`` for the resolution rules.",
+      "properties": {
+        "mode": {
+          "default": "subscription",
+          "enum": [
+            "subscription",
+            "api-key"
+          ],
+          "title": "Mode",
+          "type": "string"
+        },
+        "api_key_env": {
+          "default": "ANTHROPIC_API_KEY",
+          "title": "Api Key Env",
+          "type": "string"
+        },
+        "model_env": {
+          "default": "ANTHROPIC_MODEL",
+          "title": "Model Env",
+          "type": "string"
+        },
+        "prompt_for_key": {
+          "default": false,
+          "title": "Prompt For Key",
+          "type": "boolean"
+        },
+        "orchestrator": {
+          "$ref": "#/$defs/AuthProfileCfg"
+        },
+        "research": {
+          "$ref": "#/$defs/AuthProfileCfg"
+        }
+      },
+      "title": "AuthCfg",
+      "type": "object"
+    },
+    "AuthProfileCfg": {
+      "additionalProperties": false,
+      "description": "Credential + model overrides for one class of agent. Unset fields inherit.",
+      "properties": {
+        "provider": {
+          "anyOf": [
+            {
+              "enum": [
+                "anthropic",
+                "openai",
+                "gemini"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Provider"
+        },
+        "api_key_env": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Api Key Env"
+        },
+        "model": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Model"
+        },
+        "model_env": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Model Env"
+        }
+      },
+      "title": "AuthProfileCfg",
+      "type": "object"
+    },
+    "CloudCfg": {
+      "additionalProperties": true,
+      "properties": {
+        "target": {
+          "default": "gcp",
+          "enum": [
+            "gcp",
+            "azure",
+            "aws"
+          ],
+          "title": "Target",
+          "type": "string"
+        },
+        "image": {
+          "default": "vantage",
+          "title": "Image",
+          "type": "string"
+        },
+        "gcp": {
+          "additionalProperties": true,
+          "title": "Gcp",
+          "type": "object"
+        },
+        "azure": {
+          "additionalProperties": true,
+          "title": "Azure",
+          "type": "object"
+        },
+        "aws": {
+          "additionalProperties": true,
+          "title": "Aws",
+          "type": "object"
+        }
+      },
+      "title": "CloudCfg",
+      "type": "object"
+    },
+    "EdgarCfg": {
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "default": true,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "identity_env": {
+          "default": "SEC_EDGAR_IDENTITY",
+          "title": "Identity Env",
+          "type": "string"
+        },
+        "filings_limit": {
+          "default": 8,
+          "maximum": 100,
+          "minimum": 1,
+          "title": "Filings Limit",
+          "type": "integer"
+        },
+        "statement_max_chars": {
+          "default": 2500,
+          "minimum": 100,
+          "title": "Statement Max Chars",
+          "type": "integer"
+        }
+      },
+      "title": "EdgarCfg",
+      "type": "object"
+    },
+    "EngineCfg": {
+      "additionalProperties": false,
+      "properties": {
+        "backend": {
+          "default": "workflow",
+          "enum": [
+            "workflow",
+            "api",
+            "agent-sdk",
+            "langgraph",
+            "adk",
+            "crewai"
+          ],
+          "title": "Backend",
+          "type": "string"
+        },
+        "available_backends": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Available Backends",
+          "type": "array"
+        },
+        "tier": {
+          "default": "FULL_ANNEX",
+          "enum": [
+            "EXECUTIVE",
+            "STANDARD",
+            "FULL_ANNEX"
+          ],
+          "title": "Tier",
+          "type": "string"
+        },
+        "max_concurrency": {
+          "default": 10,
+          "maximum": 32,
+          "minimum": 1,
+          "title": "Max Concurrency",
+          "type": "integer"
+        },
+        "output_dir": {
+          "default": "~/.cache/vantage/run",
+          "minLength": 1,
+          "title": "Output Dir",
+          "type": "string"
+        },
+        "harness_dir": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Harness Dir"
+        },
+        "max_iterations": {
+          "default": 24,
+          "description": "Maximum direct-API turns per agent.",
+          "maximum": 200,
+          "minimum": 1,
+          "title": "Max Iterations",
+          "type": "integer"
+        },
+        "tool_result_max_chars": {
+          "default": 24000,
+          "minimum": 256,
+          "title": "Tool Result Max Chars",
+          "type": "integer"
+        },
+        "tool_timeout_seconds": {
+          "default": 120,
+          "exclusiveMinimum": 0,
+          "title": "Tool Timeout Seconds",
+          "type": "number"
+        }
+      },
+      "title": "EngineCfg",
+      "type": "object"
+    },
+    "MarketDataCfg": {
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "default": true,
+          "title": "Enabled",
+          "type": "boolean"
+        }
+      },
+      "title": "MarketDataCfg",
+      "type": "object"
+    },
+    "ModelRef": {
+      "additionalProperties": false,
+      "properties": {
+        "provider": {
+          "default": "anthropic",
+          "enum": [
+            "anthropic",
+            "openai",
+            "gemini"
+          ],
+          "title": "Provider",
+          "type": "string"
+        },
+        "model": {
+          "minLength": 1,
+          "title": "Model",
+          "type": "string"
+        },
+        "max_tokens": {
+          "anyOf": [
+            {
+              "minimum": 1024,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Tokens"
+        },
+        "temperature": {
+          "anyOf": [
+            {
+              "maximum": 2,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Temperature"
+        },
+        "effort": {
+          "anyOf": [
+            {
+              "enum": [
+                "low",
+                "medium",
+                "high",
+                "xhigh",
+                "max"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Effort"
+        }
+      },
+      "required": [
+        "model"
+      ],
+      "title": "ModelRef",
+      "type": "object"
+    },
+    "ModelsCfg": {
+      "additionalProperties": false,
+      "properties": {
+        "synthesis": {
+          "$ref": "#/$defs/ModelRef",
+          "default": {
+            "provider": "anthropic",
+            "model": "claude-opus-5-5",
+            "max_tokens": null,
+            "temperature": null,
+            "effort": "high"
+          }
+        },
+        "research": {
+          "$ref": "#/$defs/ModelRef",
+          "default": {
+            "provider": "anthropic",
+            "model": "claude-sonnet-5-5",
+            "max_tokens": null,
+            "temperature": null,
+            "effort": "high"
+          }
+        },
+        "cheap": {
+          "$ref": "#/$defs/ModelRef",
+          "default": {
+            "provider": "anthropic",
+            "model": "claude-haiku-4-5-20251001",
+            "max_tokens": null,
+            "temperature": null,
+            "effort": null
+          }
+        },
+        "temperature": {
+          "default": 1.0,
+          "maximum": 2,
+          "minimum": 0,
+          "title": "Temperature",
+          "type": "number"
+        },
+        "max_tokens": {
+          "default": 16000,
+          "minimum": 1024,
+          "title": "Max Tokens",
+          "type": "integer"
+        },
+        "thinking": {
+          "$ref": "#/$defs/ThinkingCfg"
+        }
+      },
+      "title": "ModelsCfg",
+      "type": "object"
+    },
+    "OutputCfg": {
+      "additionalProperties": false,
+      "description": "Supported output contract; other formats and state deletion are not implemented.",
+      "properties": {
+        "formats": {
+          "items": {
+            "const": "md",
+            "type": "string"
+          },
+          "maxItems": 1,
+          "minItems": 1,
+          "title": "Formats",
+          "type": "array"
+        },
+        "keep_state": {
+          "const": true,
+          "default": true,
+          "title": "Keep State",
+          "type": "boolean"
+        }
+      },
+      "title": "OutputCfg",
+      "type": "object"
+    },
+    "ProviderCfg": {
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "default": false,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "api_key_env": {
+          "default": "",
+          "title": "Api Key Env",
+          "type": "string"
+        },
+        "default_model": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Default Model"
+        },
+        "timeout_seconds": {
+          "default": 120,
+          "exclusiveMinimum": 0,
+          "title": "Timeout Seconds",
+          "type": "number"
+        },
+        "max_attempts": {
+          "default": 5,
+          "maximum": 10,
+          "minimum": 1,
+          "title": "Max Attempts",
+          "type": "integer"
+        },
+        "max_concurrency": {
+          "anyOf": [
+            {
+              "maximum": 32,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "null inherits engine.max_concurrency.",
+          "title": "Max Concurrency"
+        },
+        "retry_min_seconds": {
+          "default": 2,
+          "minimum": 0,
+          "title": "Retry Min Seconds",
+          "type": "number"
+        },
+        "retry_max_seconds": {
+          "default": 30,
+          "minimum": 0,
+          "title": "Retry Max Seconds",
+          "type": "number"
+        }
+      },
+      "title": "ProviderCfg",
+      "type": "object"
+    },
+    "RunDefaultsCfg": {
+      "additionalProperties": false,
+      "properties": {
+        "primary_geography": {
+          "default": "AUTO-DETECT",
+          "title": "Primary Geography",
+          "type": "string"
+        },
+        "target_vertical": {
+          "default": "AUTO-DETECT",
+          "title": "Target Vertical",
+          "type": "string"
+        },
+        "ticker_or_private": {
+          "default": "AUTO-DETECT",
+          "title": "Ticker Or Private",
+          "type": "string"
+        },
+        "capability_pack": {
+          "default": "NOT_ATTACHED",
+          "enum": [
+            "ATTACHED",
+            "NOT_ATTACHED"
+          ],
+          "title": "Capability Pack",
+          "type": "string"
+        },
+        "account_team_input_sheet": {
+          "default": "NOT_ATTACHED",
+          "enum": [
+            "ATTACHED",
+            "NOT_ATTACHED"
+          ],
+          "title": "Account Team Input Sheet",
+          "type": "string"
+        },
+        "account_context": {
+          "default": "NONE",
+          "title": "Account Context",
+          "type": "string"
+        },
+        "known_relationship_context": {
+          "default": "NONE",
+          "title": "Known Relationship Context",
+          "type": "string"
+        },
+        "strategic_pursuit_objectives": {
+          "default": "NONE",
+          "title": "Strategic Pursuit Objectives",
+          "type": "string"
+        }
+      },
+      "title": "RunDefaultsCfg",
+      "type": "object"
+    },
+    "ThinkingCfg": {
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "default": true,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "mode": {
+          "default": "auto",
+          "enum": [
+            "auto",
+            "adaptive",
+            "enabled"
+          ],
+          "title": "Mode",
+          "type": "string"
+        },
+        "budget_tokens": {
+          "default": 8000,
+          "minimum": 1024,
+          "title": "Budget Tokens",
+          "type": "integer"
+        },
+        "effort": {
+          "default": "medium",
+          "enum": [
+            "low",
+            "medium",
+            "high",
+            "xhigh",
+            "max"
+          ],
+          "title": "Effort",
+          "type": "string"
+        }
+      },
+      "title": "ThinkingCfg",
+      "type": "object"
+    },
+    "ToolsCfg": {
+      "additionalProperties": false,
+      "properties": {
+        "web_search": {
+          "$ref": "#/$defs/WebSearchCfg"
+        },
+        "edgar": {
+          "$ref": "#/$defs/EdgarCfg"
+        },
+        "market_data": {
+          "$ref": "#/$defs/MarketDataCfg"
+        }
+      },
+      "title": "ToolsCfg",
+      "type": "object"
+    },
+    "WebSearchCfg": {
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "default": true,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "provider": {
+          "default": "tavily",
+          "enum": [
+            "tavily",
+            "brave"
+          ],
+          "title": "Provider",
+          "type": "string"
+        },
+        "api_key_env": {
+          "default": "TAVILY_API_KEY",
+          "title": "Api Key Env",
+          "type": "string"
+        },
+        "max_results": {
+          "default": 6,
+          "maximum": 20,
+          "minimum": 1,
+          "title": "Max Results",
+          "type": "integer"
+        },
+        "search_depth": {
+          "default": "advanced",
+          "enum": [
+            "basic",
+            "advanced"
+          ],
+          "title": "Search Depth",
+          "type": "string"
+        },
+        "timeout_seconds": {
+          "default": 20,
+          "exclusiveMinimum": 0,
+          "title": "Timeout Seconds",
+          "type": "number"
+        },
+        "snippet_max_chars": {
+          "default": 500,
+          "minimum": 100,
+          "title": "Snippet Max Chars",
+          "type": "integer"
+        }
+      },
+      "title": "WebSearchCfg",
+      "type": "object"
+    }
+  },
+  "description": "Defaults < user config < VANTAGE_* environment < CLI overrides. See docs/configuration.md for model sources and backend applicability.",
+  "properties": {
+    "version": {
+      "default": "2.1",
+      "title": "Version",
+      "type": "string"
+    },
+    "engine": {
+      "$ref": "#/$defs/EngineCfg"
+    },
+    "auth": {
+      "$ref": "#/$defs/AuthCfg"
+    },
+    "models": {
+      "$ref": "#/$defs/ModelsCfg"
+    },
+    "role_model_map": {
+      "additionalProperties": {
+        "enum": [
+          "synthesis",
+          "research",
+          "cheap"
+        ],
+        "type": "string"
+      },
+      "title": "Role Model Map",
+      "type": "object"
+    },
+    "providers": {
+      "additionalProperties": {
+        "$ref": "#/$defs/ProviderCfg"
+      },
+      "title": "Providers",
+      "type": "object"
+    },
+    "tools": {
+      "$ref": "#/$defs/ToolsCfg"
+    },
+    "cloud": {
+      "$ref": "#/$defs/CloudCfg"
+    },
+    "run_defaults": {
+      "$ref": "#/$defs/RunDefaultsCfg"
+    },
+    "output": {
+      "$ref": "#/$defs/OutputCfg"
+    },
+    "$schema": {
+      "type": "string"
+    },
+    "_note": {
+      "type": "string"
+    }
+  },
+  "title": "Vantage configuration",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/bhaskarbhaumik/vantage/main/config/default.schema.json"
+}

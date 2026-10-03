@@ -1,0 +1,14 @@
+.git
+.venv
+.uv
+node_modules
+cli/dist
+runs
+**/__pycache__
+*.pyc
+.env
+.mypy_cache
+.ruff_cache
+.pytest_cache
+harness/runs
+deploy/**/secrets*

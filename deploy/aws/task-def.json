@@ -1,0 +1,44 @@
+{
+  "family": "vantage",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "2048",
+  "memory": "4096",
+  "executionRoleArn": "arn:aws:iam::<ACCOUNT_ID>:role/vantageExecutionRole",
+  "taskRoleArn": "arn:aws:iam::<ACCOUNT_ID>:role/vantageTaskRole",
+  "containerDefinitions": [
+    {
+      "name": "vantage",
+      "image": "<ACCOUNT_ID>.dkr.ecr.<REGION>.amazonaws.com/vantage:latest",
+      "essential": true,
+      "command": ["run", "--client", "ACME", "--slug", "acme-2026-08", "--backend", "api"],
+      "environment": [
+        { "name": "VANTAGE_BACKEND", "value": "api" },
+        { "name": "VANTAGE_OUTPUT_DIR", "value": "/data/runs" }
+      ],
+      "secrets": [
+        { "name": "ANTHROPIC_API_KEY", "valueFrom": "arn:aws:secretsmanager:<REGION>:<ACCOUNT_ID>:secret:anthropic-api-key" },
+        { "name": "TAVILY_API_KEY", "valueFrom": "arn:aws:secretsmanager:<REGION>:<ACCOUNT_ID>:secret:tavily-api-key" },
+        { "name": "SEC_EDGAR_IDENTITY", "valueFrom": "arn:aws:secretsmanager:<REGION>:<ACCOUNT_ID>:secret:sec-edgar-identity" }
+      ],
+      "mountPoints": [
+        { "sourceVolume": "runs", "containerPath": "/data" }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/vantage",
+          "awslogs-region": "<REGION>",
+          "awslogs-stream-prefix": "vantage",
+          "awslogs-create-group": "true"
+        }
+      }
+    }
+  ],
+  "volumes": [
+    {
+      "name": "runs",
+      "efsVolumeConfiguration": { "fileSystemId": "<EFS_FS_ID>", "transitEncryption": "ENABLED" }
+    }
+  ]
+}

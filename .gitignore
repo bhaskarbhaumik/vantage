@@ -1,0 +1,45 @@
+# ── Python ──
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.uv/
+dist/
+build/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# ── Node / TypeScript ──
+node_modules/
+cli/dist/
+
+# ── Secrets & local env ──
+.env
+.env.*
+!.env.example
+*.local
+service-account*.json
+*.pem
+# Personal key inventory: names the plaintext path where live keys are stored and enumerates
+# which vendor keys the operator holds. Keep it local — git history is permanent, so a file
+# committed once stays recoverable even after deletion and even if repo visibility changes.
+docs/prompts/vantage-v1/aid-ug-20260829.md
+
+# ── Backout stash (scripts/backout-vantage-v1-to-aid.sh) ──
+harness/.stashed-vantage/
+
+# ── Generated knowledge graph + extraction cache (rebuild with /graphify) ──
+graphify-out/
+
+# ── Run outputs ──
+runs/*
+!runs/README.md
+
+# ── OS / editor ──
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Locks ARE committed (uv.lock, package-lock.json) — do not ignore.

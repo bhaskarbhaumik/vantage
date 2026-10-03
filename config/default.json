@@ -1,0 +1,200 @@
+{
+  "$schema": "./default.schema.json",
+  "version": "2.1",
+  "_note": "Vantage configuration v2.1. Defaults are merged with ~/.config/vantage/default.json, then environment variables and CLI overrides. Run `vantage-engine config migrate` after upgrades. API billing remains opt-in (auth.mode=api-key); credentials belong in environment variables, never here. See docs/configuration.md for backend applicability and model sources.",
+  "engine": {
+    "backend": "workflow",
+    "available_backends": [
+      "workflow",
+      "api",
+      "agent-sdk",
+      "langgraph",
+      "adk",
+      "crewai"
+    ],
+    "max_concurrency": 10,
+    "output_dir": "~/.cache/vantage/run",
+    "harness_dir": null,
+    "tier": "FULL_ANNEX",
+    "max_iterations": 24,
+    "tool_result_max_chars": 24000,
+    "tool_timeout_seconds": 120
+  },
+  "auth": {
+    "mode": "subscription",
+    "api_key_env": "ANTHROPIC_API_KEY",
+    "model_env": "ANTHROPIC_MODEL",
+    "prompt_for_key": false,
+    "orchestrator": {
+      "provider": null,
+      "api_key_env": null,
+      "model": null,
+      "model_env": null
+    },
+    "research": {
+      "provider": null,
+      "api_key_env": null,
+      "model": null,
+      "model_env": null
+    }
+  },
+  "models": {
+    "synthesis": {
+      "provider": "anthropic",
+      "model": "claude-opus-5-5",
+      "max_tokens": null,
+      "temperature": null,
+      "effort": "high"
+    },
+    "research": {
+      "provider": "anthropic",
+      "model": "claude-sonnet-5-5",
+      "max_tokens": null,
+      "temperature": null,
+      "effort": "high"
+    },
+    "cheap": {
+      "provider": "anthropic",
+      "model": "claude-haiku-4-5-20251001",
+      "max_tokens": null,
+      "temperature": null,
+      "effort": null
+    },
+    "temperature": 1.0,
+    "max_tokens": 16000,
+    "thinking": {
+      "enabled": true,
+      "budget_tokens": 8000,
+      "mode": "auto",
+      "effort": "medium"
+    }
+  },
+  "role_model_map": {
+    "preflight": "synthesis",
+    "backbone": "research",
+    "corporate": "research",
+    "market": "research",
+    "business-model": "research",
+    "financials": "research",
+    "technology": "research",
+    "strategy": "research",
+    "leadership": "research",
+    "signals": "research",
+    "risk": "research",
+    "esg": "research",
+    "operations": "research",
+    "competition": "research",
+    "customers": "research",
+    "ai-readiness": "research",
+    "vendors": "research",
+    "vertical": "research",
+    "source-merge": "cheap",
+    "contradiction": "synthesis",
+    "evidence-audit": "synthesis",
+    "opportunity": "synthesis",
+    "account-strategy": "synthesis",
+    "playbook": "synthesis",
+    "exec-brief": "synthesis",
+    "methodology": "research",
+    "verification": "synthesis",
+    "appendices": "cheap",
+    "assembly": "cheap"
+  },
+  "providers": {
+    "anthropic": {
+      "enabled": true,
+      "api_key_env": "ANTHROPIC_API_KEY",
+      "default_model": "claude-sonnet-5-5",
+      "timeout_seconds": 120,
+      "max_attempts": 5,
+      "max_concurrency": null,
+      "retry_min_seconds": 2,
+      "retry_max_seconds": 30
+    },
+    "openai": {
+      "enabled": false,
+      "api_key_env": "OPENAI_API_KEY",
+      "default_model": "gpt-6.1-sol",
+      "timeout_seconds": 120,
+      "max_attempts": 5,
+      "max_concurrency": null,
+      "retry_min_seconds": 2,
+      "retry_max_seconds": 30
+    },
+    "gemini": {
+      "enabled": false,
+      "api_key_env": "GOOGLE_API_KEY",
+      "default_model": "gemini-3.5-flash",
+      "timeout_seconds": 120,
+      "max_attempts": 5,
+      "max_concurrency": null,
+      "retry_min_seconds": 2,
+      "retry_max_seconds": 30
+    }
+  },
+  "tools": {
+    "web_search": {
+      "enabled": true,
+      "provider": "tavily",
+      "api_key_env": "TAVILY_API_KEY",
+      "max_results": 6,
+      "search_depth": "advanced",
+      "timeout_seconds": 20,
+      "snippet_max_chars": 500
+    },
+    "edgar": {
+      "enabled": true,
+      "identity_env": "SEC_EDGAR_IDENTITY",
+      "filings_limit": 8,
+      "statement_max_chars": 2500
+    },
+    "market_data": {
+      "enabled": true
+    }
+  },
+  "cloud": {
+    "target": "gcp",
+    "image": "vantage",
+    "gcp": {
+      "project_env": "GCP_PROJECT",
+      "region": "us-central1",
+      "service": "vantage",
+      "artifact_repo": "vantage",
+      "memory": "2Gi",
+      "cpu": "2",
+      "timeout": "3600s"
+    },
+    "azure": {
+      "resource_group_env": "AZURE_RESOURCE_GROUP",
+      "location": "eastus",
+      "app": "vantage",
+      "env": "vantage-env",
+      "cpu": 2.0,
+      "memory": "4Gi"
+    },
+    "aws": {
+      "region": "us-east-1",
+      "ecr_repo": "vantage",
+      "cluster": "vantage",
+      "service": "vantage",
+      "cpu": "2048",
+      "memory": "4096"
+    }
+  },
+  "run_defaults": {
+    "primary_geography": "AUTO-DETECT",
+    "target_vertical": "AUTO-DETECT",
+    "ticker_or_private": "AUTO-DETECT",
+    "capability_pack": "NOT_ATTACHED",
+    "account_team_input_sheet": "NOT_ATTACHED",
+    "account_context": "NONE",
+    "known_relationship_context": "NONE",
+    "strategic_pursuit_objectives": "NONE"
+  },
+  "output": {
+    "formats": [
+      "md"
+    ],
+    "keep_state": true
+  }
+}
