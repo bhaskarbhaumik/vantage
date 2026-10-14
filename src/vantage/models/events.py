@@ -19,6 +19,8 @@ EventType = Literal[
     "run_warning",
     "run_error",
     "log",
+    # `vantage export`: one per file written; data = {format, path, bytes, pages?, slides?}.
+    "artifact",
 ]
 
 
