@@ -1,6 +1,6 @@
 # ID Allocation Table v3.0.0 — collision avoidance under parallel execution
 
-> **Why this file exists.** `aid-20260829.md` assumes sequential phases with an append-only handoff
+> **Why this file exists.** `vantage-20260829.md` assumes sequential phases with an append-only handoff
 > file, so "next free ID" is unambiguous. This harness runs up to **ten agents concurrently** with
 > no shared runtime state, so "next free ID" is undefined and every one of them would mint `S1`.
 > ID space is therefore **partitioned in advance**. Every agent gets a numeric block and uses only

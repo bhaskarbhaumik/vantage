@@ -24,10 +24,7 @@ service-account*.json
 # Personal key inventory: names the plaintext path where live keys are stored and enumerates
 # which vendor keys the operator holds. Keep it local — git history is permanent, so a file
 # committed once stays recoverable even after deletion and even if repo visibility changes.
-docs/prompts/vantage-v1/aid-ug-20260829.md
-
-# ── Backout stash (scripts/backout-vantage-v1-to-aid.sh) ──
-harness/.stashed-vantage/
+docs/prompts/vantage-v1/vantage-ug-20260829.md
 
 # ── Generated knowledge graph + extraction cache (rebuild with /graphify) ──
 graphify-out/

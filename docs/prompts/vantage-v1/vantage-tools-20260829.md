@@ -1,8 +1,8 @@
-# AID Deep-Research Tooling Catalog — Combined (v2)
+# Vantage Deep-Research Tooling Catalog — Combined (v2)
 **Version:** 2.0.0 · **Last verified:** 2026-08-29
 **Classification:** Internal account research
-**Supersedes:** `aid-fable-5-tools.md` v1.0.0, incorporating all findings and 50 additions from `codex_review_comments.md` (Codex review, 2026-08-29)
-**Companion to:** `aid-20260829.md` (prompt v3.0.0)
+**Supersedes:** `vantage-fable-5-tools.md` v1.0.0, incorporating all findings and 50 additions from `codex_review_comments.md` (Codex review, 2026-08-29)
+**Companion to:** `vantage-20260829.md` (prompt v3.0.0)
 
 **Legend:** 🟢 Free · 🟡 Freemium · 🔴 Paid · 🏢 Enterprise · 🔑 API key · 📜 ToS/registration limits · ⚖️ Licensing/reuse restrictions — verify before quoting/persisting/redistributing · ⚠️ Unofficial or breakage-prone — never a sole source for a material claim
 
@@ -23,14 +23,14 @@
 | `edgartools` (Python) | Library | 🟢 | **installed** (`pyproject.toml`) | SEC EDGAR backbone + XBRL for precomputed financials |
 | `yfinance` (Python) | Library | 🟢 📜 ⚠️ | **installed** | Triage/reconciliation only — unofficial Yahoo wrapper; final market/financial claims come from filings or licensed feeds (finding 14) |
 | `tavily-python` | API + library | 🟡 🔑 | **installed** | Out-of-session search/extract/crawl |
-| Claude Code Workflow (`company-aid` engine) | Harness | 🟢 (subscription) | **external** — lives at `~/Developer/company-aid`, not this repo (finding 17) | Default multi-agent AID runner |
-| LangGraph / CrewAI / Google ADK | OSS frameworks | 🟢 | **external** — backends of the company-aid engine, not declared in this repo | Alternate orchestration backends |
+| Claude Code Workflow (`vantage` engine) | Harness | 🟢 (subscription) | **external** — lives at `~/Developer/vantage`, not this repo (finding 17) | Default multi-agent Vantage runner |
+| LangGraph / CrewAI / Google ADK | OSS frameworks | 🟢 | **external** — backends of the vantage engine, not declared in this repo | Alternate orchestration backends |
 
 ---
 
 ## 1. General Web Search APIs
 
-| Service | Type | Access | What it provides | Status/caveats | AID §§ |
+| Service | Type | Access | What it provides | Status/caveats | Vantage §§ |
 |---|---|---|---|---|---|
 | Anthropic Web Search | Server tool | 🔴 | In-session search + dynamic filtering + citations | available | All |
 | Brave Search API | REST | 🟡 🔑 | Independent index; web+news; generous free tier | available | All |
@@ -43,7 +43,7 @@
 
 ## 2. AI-Native Search & Deep-Research APIs
 
-| Service | Type | Access | What it provides | Status/caveats | AID §§ |
+| Service | Type | Access | What it provides | Status/caveats | Vantage §§ |
 |---|---|---|---|---|---|
 | Tavily | REST+SDK+MCP | 🟡 🔑 | Search/extract/crawl/map for LLM research | available | All |
 | Exa | REST+MCP | 🟡 🔑 | Semantic search, find-similar-companies, contents | available | §4, §11 |
@@ -55,7 +55,7 @@
 
 ## 3. Web Fetching, Scraping & Crawling
 
-| Service | Type | Access | What it provides | Status/caveats | AID §§ |
+| Service | Type | Access | What it provides | Status/caveats | Vantage §§ |
 |---|---|---|---|---|---|
 | Anthropic Web Fetch | Server tool | 🟢 | Page/PDF retrieval + citations | available | All |
 | Firecrawl | REST+SDK+MCP | 🟡 🔑 | Scrape/crawl/map/extract → markdown/JSON | available | §3, §8, §12 |
@@ -71,7 +71,7 @@
 
 ## 4. Document Parsing & OCR *(new category — finding T-20)*
 
-| Service | Type | Access | What it provides | AID §§ |
+| Service | Type | Access | What it provides | Vantage §§ |
 |---|---|---|---|---|
 | Docling | OSS | 🟢 | PDF/DOCX/PPTX parsing, tables, reading order → structured output | filings, IR decks |
 | Unstructured | OSS + hosted | 🟢/🔴 | Partitioning/extraction from PDF/Office/HTML/email | all fetched docs |
@@ -80,7 +80,7 @@
 
 ## 5. Identifiers & Entity Resolution *(new category — findings T-9, additions 9–13)*
 
-| Service | Type | Access | What it provides | AID §§ |
+| Service | Type | Access | What it provides | Vantage §§ |
 |---|---|---|---|---|
 | GLEIF LEI API | REST | 🟢 | LEI records + corporate hierarchy | §0, §3.6 |
 | OpenFIGI | REST | 🟢 🔑 | FIGI/ticker/exchange/security mapping | §3.6 |
@@ -92,7 +92,7 @@
 
 ## 6. Regulatory & Corporate Filings — US
 
-| Service | Type | Access | What it provides | Status/caveats | AID §§ |
+| Service | Type | Access | What it provides | Status/caveats | Vantage §§ |
 |---|---|---|---|---|---|
 | SEC EDGAR (full-text, submissions, XBRL frames) | REST | 🟢 📜 (UA header) | 10-K/10-Q/8-K/DEF 14A/S-1 + XBRL facts | primary backbone | §3, §5, §6, §10, §14 |
 | **SEC 13D/13G feeds** | REST/filings | 🟢 | **Beneficial ownership** + control intent | distinct interpretation (finding T-9) | §3.7 |
@@ -122,7 +122,7 @@
 
 ## 8. Financial Market & Fundamentals Data
 
-| Service | Type | Access | What it provides | Status/caveats | AID §§ |
+| Service | Type | Access | What it provides | Status/caveats | Vantage §§ |
 |---|---|---|---|---|---|
 | `yfinance` | Python | 🟢 📜 ⚠️ | Prices, statements, multiples, holders | **triage/reconciliation only** — unofficial wrapper (finding T-14) | §6 |
 | Financial Modeling Prep | REST | 🟡 🔑 | Statements, ratios, peers, transcripts | verify plan limits | §6, §11.3, §13.4 |
@@ -134,7 +134,7 @@
 
 ## 9. Earnings Calls, Transcripts & IR — with provenance classes *(finding T-15)*
 
-| Service | Provenance class | Access | Caveats | AID §§ |
+| Service | Provenance class | Access | Caveats | Vantage §§ |
 |---|---|---|---|---|
 | Company IR site: prepared remarks, official transcripts, webcasts | **Official** | 🟢 | The quote-governing source | §9, §13.4 |
 | Motley Fool / Seeking Alpha transcripts | **Third-party transcription** | 🟢/🟡 📜 ⚖️ | Transcription errors possible; verify material quotes against audio/official text | §13.4 |
@@ -144,7 +144,7 @@
 
 ## 10. News, Media & Event Monitoring
 
-| Service | Type | Access | What it provides | Status/caveats | AID §§ |
+| Service | Type | Access | What it provides | Status/caveats | Vantage §§ |
 |---|---|---|---|---|---|
 | GDELT 2.0 | Open API+BigQuery | 🟢 | Global news graph, tone, entities | available | §12.5, §21.4 |
 | NewsAPI.org | REST | 🟡 🔑 | Article search | free tier = dev only | §21.4 |
@@ -156,7 +156,7 @@
 
 ## 11. Company, Startup & Private-Market Intelligence
 
-| Service | Type | Access | What it provides | Status/caveats | AID §§ |
+| Service | Type | Access | What it provides | Status/caveats | Vantage §§ |
 |---|---|---|---|---|---|
 | Crunchbase | REST | 🔴 🔑 ⚖️ | Funding, investors, people | check redistribution terms | §9.3, §16.3 |
 | PitchBook / CB Insights / Dealroom / Tracxn | Enterprise | 🏢 ⚖️ | Private valuations, market maps | licensed | §6.7, §11 |
@@ -169,7 +169,7 @@
 
 ## 12. Jobs, Talent & Organizational Signals *(all rows = OBSERVED-SIGNAL class)*
 
-| Service | Access | What it provides | Caveats | AID §§ |
+| Service | Access | What it provides | Caveats | Vantage §§ |
 |---|---|---|---|---|
 | Careers site + ATS public JSON (Greenhouse/Lever/Workday) | 🟢 | Ground-truth open roles | classify tech mentions: CURRENTLY-USED/MIGRATING-TO/EVALUATING/SKILL-PREFERENCE/AMBIGUOUS (finding 20) | §13.3, §21.5 |
 | LinkedIn | 🏢 📜 ⚖️ | Headcount/hiring/moves | partner API or licensed vendors only | §10, §13.3 |
@@ -182,7 +182,7 @@
 
 ## 13. Technology Stack & Product Discovery *(signal class — corroborate before CONFIRMED)*
 
-| Service | Access | What it provides | Evidence strength | AID §§ |
+| Service | Access | What it provides | Evidence strength | Vantage §§ |
 |---|---|---|---|---|
 | BuiltWith / Wappalyzer | 🔴/🟡 🔑 | Web-facing stack + history | Medium — web-facing only | §8.1 |
 | HG Insights / SimilarTech | 🏢 | Back-office technographics (ERP/CRM installs) | Medium-high (modeled) | §8.1.1, §16.1 |
@@ -195,7 +195,7 @@
 
 ## 14. Patents, Trademarks, Research & IP *(expanded)*
 
-| Service | Access | What it provides | AID §§ |
+| Service | Access | What it provides | Vantage §§ |
 |---|---|---|---|
 | PatentsView (USPTO) | 🟢 🔑 | US patents, assignees, citations | §9.4, §21.6 |
 | EPO OPS | 🟢 🔑 | European/worldwide families | §21.6 |
@@ -207,7 +207,7 @@
 
 ## 15. Sanctions, Enforcement, Integrity & Influence *(new category — findings T-20, additions 14–21)*
 
-| Service | Access | What it provides | AID §§ |
+| Service | Access | What it provides | Vantage §§ |
 |---|---|---|---|
 | OFAC Sanctions List Service | 🟢 | US sanctions lists | §14.8 |
 | EU / UK / UN consolidated sanctions lists | 🟢 | Non-US restricted-party data | §14.8 |
@@ -220,7 +220,7 @@
 
 ## 16. ESG, Sustainability & Governance
 
-| Service | Access | What it provides | AID §§ |
+| Service | Access | What it provides | Vantage §§ |
 |---|---|---|---|
 | Company sustainability/CSR report | 🟢 | Scope 1/2/3, targets — self-reported (independence rule applies to outcome claims) | §17.2 |
 | CDP | 🟡 🏢 ⚖️ | Standardized climate disclosures | §17.1 |
@@ -233,7 +233,7 @@
 
 ## 17. Sector & Macro Data *(new rows per additions 35–37)*
 
-| Service | Access | What it provides | AID §§ |
+| Service | Access | What it provides | Vantage §§ |
 |---|---|---|---|
 | FRED / World Bank / IMF / OECD / Eurostat | 🟢 (🔑 for FRED) | Macro series | §4.7 |
 | BLS / Census / BEA | 🟢 🔑 | US labor/industry structure | §4.1, §4.7 |
@@ -244,7 +244,7 @@
 
 ## 18. Public Contracts & Procurement *(globalized per additions 38–40)*
 
-| Service | Access | What it provides | AID §§ |
+| Service | Access | What it provides | Vantage §§ |
 |---|---|---|---|
 | USAspending.gov API | 🟢 | US federal awards to the company | §13.7, §16 |
 | SAM.gov / GovTribe / HigherGov | 🟡 🔑 | US opportunities, vehicles, expirations | §18.6 |
@@ -254,7 +254,7 @@
 
 ## 19. Supply Chain, Trade & Facilities *(expanded per additions 26–28, 41–42)*
 
-| Service | Access | What it provides | AID §§ |
+| Service | Access | What it provides | Vantage §§ |
 |---|---|---|---|
 | UN Comtrade / USITC DataWeb | 🟢 | Trade flows | §5.8, §14.5 |
 | Open Supply Hub | 🟢 | Facility/supplier locations with provenance | §7.3 |
@@ -266,7 +266,7 @@
 
 ## 20. Cyber & Reliability Signals *(new category — additions 29–31, 44)*
 
-| Service | Access | What it provides | Caveats | AID §§ |
+| Service | Access | What it provides | Caveats | Vantage §§ |
 |---|---|---|---|---|
 | CISA KEV catalog | 🟢 | Exploited-vulnerability list | context for vendor/product risk | §8.4 |
 | NVD API | 🟢 (🔑 for limits) | CVE/CVSS/CPE data | product-level, not company-level | §8.4 |
@@ -275,7 +275,7 @@
 
 ## 21. Social, Community & Sentiment *(sample-size discipline applies — finding 31)*
 
-| Service | Access | What it provides | Status/caveats | AID §§ |
+| Service | Access | What it provides | Status/caveats | Vantage §§ |
 |---|---|---|---|---|
 | Reddit Data API | 🔑 📜 ⚖️ | Community sentiment | **Commercial use requires a separate Reddit agreement** (finding T-5) — not ordinary freemium; retention/deletion rules apply | §12.5 |
 | X (Twitter) API v2 | 🔴 🔑 | Executive/brand posts | costly tiers | §13 |
@@ -289,7 +289,7 @@
 
 ## 22. Web Traffic & Digital Presence
 
-| Service | Access | What it provides | AID §§ |
+| Service | Access | What it provides | Vantage §§ |
 |---|---|---|---|
 | Similarweb | 🔴 🔑 ⚖️ | Traffic/engagement (licensed — check quoting terms) | §21.7 |
 | Semrush / Ahrefs | 🔴 🔑 | SEO/keywords/backlinks | §21.7 |
@@ -298,7 +298,7 @@
 
 ## 23. Source Preservation & Provenance *(new category — additions 45, 50)*
 
-| Service | Access | What it provides | AID §§ |
+| Service | Access | What it provides | Vantage §§ |
 |---|---|---|---|
 | Internet Archive Save Page Now / WARC storage | 🟢 📜 | Reproducible snapshots of changeable evidence — archive every load-bearing URL | §21.1 |
 | Zotero API or internal provenance store | 🟢 🔑 / self-hosted | Bibliography, source IDs, snapshots, dedup — backs the §21.1 Source Manifest | §21.1, §21.9 |
@@ -326,15 +326,15 @@
 | Claude Messages API + server tools (Fable 5) | 🔴 | available | Single-session Executive-tier runs |
 | Claude Managed Agents | 🔴 (beta) | available | Hosted phased runs, rubric-graded outcomes, scheduled refreshes |
 | Claude Agent SDK | 🔴 | available | Self-hosted harness |
-| Claude Code Workflow (`company-aid` engine) | 🟢 subscription | **external** (`~/Developer/company-aid`) | Default multi-agent runner |
-| LangGraph / CrewAI / Google ADK | 🟢 | **external** (company-aid backends) | Alternates |
+| Claude Code Workflow (`vantage` engine) | 🟢 subscription | **external** (`~/Developer/vantage`) | Default multi-agent runner |
+| LangGraph / CrewAI / Google ADK | 🟢 | **external** (vantage backends) | Alternates |
 | `src/company_research/tools/` + `rate_limiter.py` + `storage/` | 🟢 | **installed** (scaffold) | In-repo wrappers, rate limiting, cache |
 
 ---
 
-## Coverage Map — AID Section → Primary Tooling (v3 sections)
+## Coverage Map — Vantage Section → Primary Tooling (v3 sections)
 
-| AID area | First choice | Backup / enrichment |
+| Vantage area | First choice | Backup / enrichment |
 |---|---|---|
 | Entity resolution (§0, §3.6) | EDGAR/registry lookup, GLEIF, OpenFIGI, PermID | OpenCorporates, Wikidata |
 | Global filings backbone | Jurisdiction adapter row (§7 above) | filings.xbrl.org, sec-api |
@@ -364,4 +364,4 @@
 
 ---
 
-*AID Tooling Catalog v2.0.0 | Vantage contributors*
+*Vantage Tooling Catalog v2.0.0 | Vantage contributors*

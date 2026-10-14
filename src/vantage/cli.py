@@ -224,13 +224,10 @@ def _config_drift(cfg) -> list[str]:
             f"max_concurrency is {cfg.engine.max_concurrency} but Wave A launches {len(WAVE_A)} "
             f"agents — the research phase will serialise. Raise it in {USER_CONFIG}."
         )
-    # A config carried over from the company-aid era keeps writing runs to the old tree, so the
-    # rename silently splits the user's output across two directories.
-    if "company-aid" in cfg.engine.output_dir or cfg.engine.output_dir in (
-        "~/vantage/runs", "~/.cache/vantage/runs",
-    ):
+    # An output_dir from an older layout silently splits the user's runs across two trees.
+    if cfg.engine.output_dir in ("~/vantage/runs", "~/.cache/vantage/runs"):
         issues.append(
-            f"output_dir still points at the pre-rename tree ({cfg.engine.output_dir}) — "
+            f"output_dir still points at a legacy run tree ({cfg.engine.output_dir}) — "
             f"update it to ~/.cache/vantage/run in {USER_CONFIG}, or move the existing runs across."
         )
     unknown = sorted(set(cfg.role_model_map) - set(AGENTS))
@@ -347,10 +344,9 @@ def config_path_cmd() -> None:
 def config_migrate(
     dry_run: bool = typer.Option(False, "--dry-run", help="Show what would change, write nothing"),
 ) -> None:
-    """Bring ~/.config/vantage/default.json up to the current schema and branding.
+    """Bring ~/.config/vantage/default.json up to the current schema.
 
-    Rewrites pre-rename tokens (company-aid, Company AID, AID, "Account Intelligence Dossier"),
-    reconciles role_model_map against the live agent roster, and fills in keys the shipped template
+    Reconciles role_model_map against the live agent roster, and fills in keys the shipped template
     has gained. The previous file is kept alongside as `.bak`.
     """
     path = USER_CONFIG

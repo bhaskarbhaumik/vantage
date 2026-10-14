@@ -6,7 +6,7 @@ Multi-agent, **multi-backend** research engine that produces **Vantage dossiers*
 Python (`uv`) engine + a TypeScript (`npm`) **Ink TUI**, runs a Claude Skill + `/vantage`
 command inside Claude Code, and deploys to **GCP / Azure / AWS**.
 
-> Scores are outside-in decision aids, never client-facing measurements.
+> Scores are outside-in decision-support tools, never client-facing measurements.
 
 ## Backends (pick per run)
 
@@ -176,27 +176,11 @@ src/vantage/
   auth.py                    subscription-first credential resolution
   cli.py server.py cloud/    Typer CLI · HTTP service · gcp|azure|aws deploy
 cli/                         TypeScript Ink TUI  →  ~/.local/bin/vantage
-scripts/                     launcher · skill installer · AID backout
+scripts/                     launcher · skill installer
 .claude/skills|commands/     vantage skill + /vantage command
 deploy/                      Dockerfile targets + per-cloud manifests/READMEs
 tests/                       pytest suite
 ```
-
-## Switching the report format back to AID
-
-`harness/.superseded-aid-v3/` holds the pre-rename AID v3.0.0 harness. The report the engine
-produces is a property of the installed harness, not of the engine, so swapping it back needs no
-code change:
-
-```bash
-./scripts/backout-vantage-v1-to-aid.sh status     # which report is installed
-./scripts/backout-vantage-v1-to-aid.sh apply      # Vantage → AID  (stashes the Vantage harness)
-./scripts/backout-vantage-v1-to-aid.sh restore    # AID → Vantage
-```
-
-`Blueprint._resolve()` accepts either filename set and the dossier name follows the installed
-harness (`<slug>-vantage.md` vs `<slug>-aid.md`). Runs already on disk are never touched, and the
-test suite passes in both states.
 
 ## Migrating from the v2.2 harness
 
@@ -205,8 +189,7 @@ state schema (2.1 → 3.0). Three things need attention:
 
 1. **Run `vantage-engine config migrate`.** A v2-era user config wins over the shipped template
    and carries the old `role_model_map` plus `max_concurrency: 8`, which silently serialises the
-   ten-agent research wave — and, after the rename, pre-Vantage brand tokens and an `output_dir`
-   still pointing at `~/company-aid/runs`. `migrate` rewrites the brand tokens, drops
+   ten-agent research wave — and an `output_dir` still pointing at `~/vantage/runs`. `migrate` drops
    `engine.depth` and agents that no longer exist, fills in keys the template has gained, and
    keeps any genuine override (it backs the old file up to `default.json.bak`). `--dry-run` shows
    the changes first; `doctor` reports the drift and points here.
@@ -217,9 +200,6 @@ state schema (2.1 → 3.0). Three things need attention:
    → the `CONFIRMED`/`ANNOUNCED`/`OBSERVED-SIGNAL`/`INFERRED`/`UNKNOWN` enum), and appendix IDs
    (A–L → §21.1–21.12) all change. `harness/blueprint/vantage-blueprint-v3.md` ends with a v2.2→v3
    mapping table.
-
-The frozen v2 harness is in `harness/.superseded-v2/`. Nothing reads from it; delete it once the v3
-harness is committed.
 
 ## Configuration
 

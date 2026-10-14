@@ -24,7 +24,7 @@ The reader must know how much to trust the document **before reading a word of i
 **Entity Resolved:** {{legal_name}} · {{LEI/CIK}} · {{ticker}} · {{ownership_form}}
 **Overall Confidence:** {{band}} (EQI {{eqi}}) · **Verification:** {{result}}
 
-> Scores in this dossier are evidence-based internal decision aids derived from outside-in public
+> Scores in this dossier are evidence-based internal decision-support tools derived from outside-in public
 > evidence. They are not measurements of the client and must not be presented to the client.
 ```
 

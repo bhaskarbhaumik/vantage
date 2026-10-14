@@ -1,15 +1,9 @@
 # Vantage v3.0.0 Harness
 
 The prompt library and execution graph that produce a Vantage dossier — *Verified Account Navigator: Targeting, Analysis & GTM Engine*. Implements
-`aid-20260829.md` (AID Prompt Package v3.0.0, Vantage contributors).
+`vantage-20260829.md` (Vantage Prompt Package v3.0.0, Vantage contributors).
 
 **Architecture and design rationale:** `ARCHITECTURE.md`.
-
-**Reverting the report format:** `.superseded-aid-v3/` holds the pre-rename AID v3.0.0
-harness. `scripts/backout-vantage-v1-to-aid.sh apply|restore|status` swaps the two. The
-engine follows whichever is installed — filenames resolve through `Blueprint._resolve()`
-and the dossier is named `<slug>-vantage.md` or `<slug>-aid.md` accordingly — so no engine
-source changes. `.superseded-v2/` is the older v2.1/v2.2 harness; nothing reads from it.
 
 ---
 
@@ -34,7 +28,6 @@ harness/
     tooling-map.md                    section → where its evidence actually lives
   state/state.schema.json             schema 3.0 — the v3 handoff contract, extended
   workflows/vantage-v3.workflow.mjs       the Claude Code Workflow runner
-  .superseded-v2/                     the frozen v2 generation; nothing reads from it
 ```
 
 The Markdown **is** the harness. The workflow script passes paths, never content — so you can edit

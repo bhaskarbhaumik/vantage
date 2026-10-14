@@ -4,7 +4,7 @@ Mirrors ``harness/workflows/vantage-v3.workflow.mjs`` and ``prompts/id-allocatio
 programmatic backends (api/agent-sdk/langgraph/adk/crewai) run the identical pipeline the Claude
 Code Workflow backend runs.
 
-Phase mapping. ``aid-20260829.md`` specifies eight sequential phases. Phases 2-6 there are a
+Phase mapping. ``vantage-20260829.md`` specifies eight sequential phases. Phases 2-6 there are a
 *dependency* ordering, not a concurrency constraint, so the harness collapses them into two
 research waves: Wave A holds every body section with no intra-body dependency (ten agents), Wave B
 holds the five that block on a Wave A output. Every phase-boundary persistence obligation is still

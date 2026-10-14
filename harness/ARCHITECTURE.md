@@ -4,7 +4,7 @@
 
 A Claude Code agent harness that produces a Vantage dossier (*Verified Account Navigator: Targeting, Analysis & GTM Engine*) as Markdown. It runs
 **29 agents across 12 steps**, with up to **ten working concurrently**, implementing
-`aid-20260829.md` (AID Prompt Package v3.0.0). It runs on your Claude subscription through the
+`vantage-20260829.md` (Vantage Prompt Package v3.0.0). It runs on your Claude subscription through the
 Workflow tool — **no Anthropic API key, no SDK, no billing integration** — and the same agent
 roster runs through five programmatic backends when you want one.
 
@@ -16,10 +16,9 @@ re-reading the dossier.
 
 | Artefact | Role here |
 |---|---|
-| `aid-20260829.md` v3.0.0 | **The source of truth.** Its SYSTEM block is the constitution; its 22-section structure is the blueprint; its Verification Pass is the gate. |
-| `aid-tools-20260829.md` v2.0.0 | The tooling catalog, condensed into `blueprint/tooling-map.md` as a section→evidence map. |
-| `aid-ug-20260829.md` v1.0.0 | Access and key inventory. Path B (this harness) is the zero-config default it recommends. |
-| `harness/.superseded-v2/` | The v2.1/v2.2 generation, frozen. Nothing reads from it; safe to delete once v3 is committed. |
+| `vantage-20260829.md` v3.0.0 | **The source of truth.** Its SYSTEM block is the constitution; its 22-section structure is the blueprint; its Verification Pass is the gate. |
+| `vantage-tools-20260829.md` v2.0.0 | The tooling catalog, condensed into `blueprint/tooling-map.md` as a section→evidence map. |
+| `vantage-ug-20260829.md` v1.0.0 | Access and key inventory. Path B (this harness) is the zero-config default it recommends. |
 
 ## The execution graph
 
@@ -62,7 +61,7 @@ entirely, and drives §1 from that.
 
 ### Phase mapping — a deliberate deviation, and why
 
-`aid-20260829.md` specifies eight sequential phases. This harness maps them onto twelve steps:
+`vantage-20260829.md` specifies eight sequential phases. This harness maps them onto twelve steps:
 
 | Spec phase | Harness step |
 |---|---|
@@ -217,7 +216,7 @@ unlock those fields on a re-run.
 - **No rendering.** Markdown only. `chart-data` / `figure-spec` blocks carry enough intermediate
   representation for a downstream renderer, which validates them against schema v1 after the run.
 - **No API keys on the default path.** The Workflow backend runs on a Claude subscription.
-- **No client-facing output.** Every scorecard carries the "decision aid, not a measurement, must
+- **No client-facing output.** Every scorecard carries the "decision-support tool, not a measurement, must
   not be presented to the client" framing.
 - **No unbounded research.** Every topic has stopping criteria, every section has a coverage record,
   and §21.12 distinguishes *stopped on diminishing returns* from *stopped on budget*.

@@ -330,24 +330,8 @@ Then in Claude Code, type `/vantage` — it should autocomplete.
 | `ANTHROPIC_API_KEY is not set` | You passed `--auth api-key` without a key | Export it, add `--ask-key`, or drop `--auth api-key` |
 | `role_model_map names agents that no longer exist` | Config predates v3.0.0 | `vantage-engine config migrate` |
 | `max_concurrency is 8 but Wave A launches 10` | Same | Same |
-| `output_dir still points at the pre-rename tree` | Config predates the Vantage rename | Same |
+| `output_dir still points at a legacy run tree` | Config predates the current run layout | Same |
 | `crewai installed but not importable` | Its `chromadb` dep needs `pydantic.v1`, broken on Python 3.14 | Use `langgraph` or `api`, or Python ≤ 3.13 |
-
----
-
-## 11. Reverting the report format
-
-`harness/.superseded-aid-v3/` holds the pre-rename AID v3.0.0 harness. The report is a property of
-the installed harness, not the engine, so swapping it needs no code change:
-
-```bash
-./scripts/backout-vantage-v1-to-aid.sh status    # which report is installed
-./scripts/backout-vantage-v1-to-aid.sh apply     # Vantage → AID  (stashes the Vantage harness)
-./scripts/backout-vantage-v1-to-aid.sh restore   # AID → Vantage
-```
-
-The dossier is named `<slug>-vantage.md` or `<slug>-aid.md` to match. Existing runs are never
-touched.
 
 ---
 

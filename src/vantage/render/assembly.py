@@ -319,7 +319,7 @@ def assemble(run_dir: Path, state: VantageState, slug: str, *, client: str, rese
         + _eqi_label(eqi, eqi_att, att_suppressed)
         + _attainment_suffix(eqi_att, band_att, att_suppressed, rc.ownership_form, eqi)
         + f" · **Verification:** {result}\n\n"
-        "> Scores in this dossier are evidence-based internal decision aids derived from "
+        "> Scores in this dossier are evidence-based internal decision-support tools derived from "
         "outside-in public evidence. They are not measurements of the client and must not be "
         "presented to the client.\n"
     )

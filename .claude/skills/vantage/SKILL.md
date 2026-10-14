@@ -133,4 +133,4 @@ predating v3) rather than retrying blindly.
 - **A thin dossier is not a failed run.** §21.12 and §2.5 exist to distinguish "nothing was there"
   from "we did not look far enough". Report the distinction rather than apologising for the gaps.
 - The default output root is `~/.cache/vantage/run`; the in-repo `harness/` holds the blueprint.
-- To format the finished dossier as a deck, whitepaper, or microsite, use the **aid-export** skill.
+- To format the finished dossier as a deck, whitepaper, or microsite, use the **vantage-export** skill.

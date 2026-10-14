@@ -5,9 +5,7 @@ from vantage.settings import harness_dir, load_config
 
 def test_blueprint_loads():
     bp = Blueprint(harness_dir(load_config()))
-    # Brand-agnostic: the suite must also pass with the AID harness reinstated by
-    # scripts/backout-vantage-v1-to-aid.sh.
-    assert "-ANALYST v3" in bp.system_prompt()
+    assert "VANTAGE-ANALYST v3" in bp.system_prompt()
     assert len(bp.brief("00-preflight.md")) > 500
     assert bp.state_schema()["properties"]["schema_version"]["const"] == "3.0"
     # The v3 reference set every agent may consult.
