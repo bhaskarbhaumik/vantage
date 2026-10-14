@@ -18,6 +18,7 @@ their own version lines (see [VERSION.md](VERSION.md)).
   the defective text; owners
   revise only their own section under brief 26b, in dependency order, and a fresh verifier re-runs
   every check. §21.8 records each round as fixed, partly fixed, not fixed, regressed or declined.
+  `vantage run --remediation-rounds 0|1|2` sets the number of rounds (default 1; workflow backend).
 - **Synthesis re-sync cascade.** When a register or body owner rewrites, every synthesis owner
   downstream of it (§18–§20, §1) is re-dispatched to re-sync, even when no finding names its text.
 - **`vantage export`** turns a finished dossier into collateral: PowerPoint (`.pptx`), Word
