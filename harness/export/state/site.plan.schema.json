@@ -1,0 +1,102 @@
+{
+  "$defs": {
+    "SitePage": {
+      "properties": {
+        "slug": {
+          "title": "Slug",
+          "type": "string"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "section_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Section Ids",
+          "type": "array"
+        },
+        "summary": {
+          "default": "",
+          "title": "Summary",
+          "type": "string"
+        },
+        "icon": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Icon"
+        },
+        "image_query": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Image Query"
+        }
+      },
+      "required": [
+        "slug",
+        "title"
+      ],
+      "title": "SitePage",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "client": {
+      "title": "Client",
+      "type": "string"
+    },
+    "title": {
+      "title": "Title",
+      "type": "string"
+    },
+    "subtitle": {
+      "default": "Vantage dossier",
+      "title": "Subtitle",
+      "type": "string"
+    },
+    "as_of": {
+      "default": "",
+      "title": "As Of",
+      "type": "string"
+    },
+    "mode": {
+      "default": "microsite",
+      "enum": [
+        "deck",
+        "microsite"
+      ],
+      "title": "Mode",
+      "type": "string"
+    },
+    "pages": {
+      "items": {
+        "$ref": "#/$defs/SitePage"
+      },
+      "title": "Pages",
+      "type": "array"
+    }
+  },
+  "required": [
+    "client",
+    "title"
+  ],
+  "title": "SitePlan",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Vantage export SitePlan"
+}

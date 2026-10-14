@@ -1,0 +1,532 @@
+{
+  "$defs": {
+    "ChartSpec": {
+      "description": "A chart the renderer generates. Data is supplied by the dossier, never invented.",
+      "properties": {
+        "form": {
+          "enum": [
+            "bar",
+            "hbar",
+            "line",
+            "grouped-bar",
+            "stacked-bar",
+            "scatter",
+            "donut",
+            "combo",
+            "waterfall"
+          ],
+          "title": "Form",
+          "type": "string"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "categories": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Categories",
+          "type": "array"
+        },
+        "series": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Series",
+          "type": "array"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unit"
+        },
+        "note": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Note"
+        },
+        "y_label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Y Label"
+        },
+        "secondary_unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Secondary Unit"
+        },
+        "id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Id"
+        }
+      },
+      "required": [
+        "form",
+        "title",
+        "categories"
+      ],
+      "title": "ChartSpec",
+      "type": "object"
+    },
+    "FigureSpec": {
+      "description": "A ``figure-spec`` block: a node/edge diagram, a positioned grid, or an item list.",
+      "properties": {
+        "id": {
+          "default": "",
+          "title": "Id",
+          "type": "string"
+        },
+        "title": {
+          "default": "Figure",
+          "title": "Title",
+          "type": "string"
+        },
+        "type": {
+          "default": "",
+          "title": "Type",
+          "type": "string"
+        },
+        "nodes": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Nodes",
+          "type": "array"
+        },
+        "edges": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Edges",
+          "type": "array"
+        },
+        "items": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Items",
+          "type": "array"
+        },
+        "axes": {
+          "additionalProperties": true,
+          "title": "Axes",
+          "type": "object"
+        },
+        "sources": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Sources",
+          "type": "array"
+        },
+        "direction": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Direction"
+        }
+      },
+      "title": "FigureSpec",
+      "type": "object"
+    },
+    "KPI": {
+      "properties": {
+        "value": {
+          "title": "Value",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "delta": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Delta"
+        },
+        "tone": {
+          "default": "neutral",
+          "enum": [
+            "neutral",
+            "good",
+            "risk"
+          ],
+          "title": "Tone",
+          "type": "string"
+        },
+        "icon": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Icon"
+        }
+      },
+      "required": [
+        "value",
+        "label"
+      ],
+      "title": "KPI",
+      "type": "object"
+    },
+    "Slide": {
+      "properties": {
+        "layout": {
+          "$ref": "#/$defs/SlideLayout"
+        },
+        "title": {
+          "default": "",
+          "title": "Title",
+          "type": "string"
+        },
+        "subtitle": {
+          "default": "",
+          "title": "Subtitle",
+          "type": "string"
+        },
+        "body": {
+          "default": "",
+          "title": "Body",
+          "type": "string"
+        },
+        "bullets": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Bullets",
+          "type": "array"
+        },
+        "bullets_right": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Bullets Right",
+          "type": "array"
+        },
+        "column_headings": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Column Headings",
+          "type": "array"
+        },
+        "kpis": {
+          "items": {
+            "$ref": "#/$defs/KPI"
+          },
+          "title": "Kpis",
+          "type": "array"
+        },
+        "table": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Table"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "chart": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ChartSpec"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "figure": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FigureSpec"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "timeline": {
+          "items": {
+            "$ref": "#/$defs/TimelineStep"
+          },
+          "title": "Timeline",
+          "type": "array"
+        },
+        "attribution": {
+          "default": "",
+          "title": "Attribution",
+          "type": "string"
+        },
+        "icon": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Icon"
+        },
+        "image_query": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Image Query"
+        },
+        "source_sections": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Source Sections",
+          "type": "array"
+        },
+        "claim_refs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Claim Refs",
+          "type": "array"
+        },
+        "notes": {
+          "default": "",
+          "title": "Notes",
+          "type": "string"
+        },
+        "emphasis": {
+          "default": "light",
+          "enum": [
+            "light",
+            "dark"
+          ],
+          "title": "Emphasis",
+          "type": "string"
+        }
+      },
+      "required": [
+        "layout"
+      ],
+      "title": "Slide",
+      "type": "object"
+    },
+    "SlideLayout": {
+      "description": "Every layout the PPTX and HTML renderers know how to draw.\n\nA plan may only name one of these. Adding a layout means adding it in both renderers \u2014 see\n``harness/export/blueprint/deck-blueprint.md``.",
+      "enum": [
+        "title",
+        "section",
+        "statement",
+        "bullets",
+        "two-column",
+        "kpi",
+        "table",
+        "chart",
+        "figure",
+        "quote",
+        "timeline",
+        "matrix",
+        "closing"
+      ],
+      "title": "SlideLayout",
+      "type": "string"
+    },
+    "Table": {
+      "properties": {
+        "kind": {
+          "const": "table",
+          "default": "table",
+          "title": "Kind",
+          "type": "string"
+        },
+        "header": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Header",
+          "type": "array"
+        },
+        "rows": {
+          "items": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "title": "Rows",
+          "type": "array"
+        },
+        "aligns": {
+          "items": {
+            "enum": [
+              "left",
+              "center",
+              "right"
+            ],
+            "type": "string"
+          },
+          "title": "Aligns",
+          "type": "array"
+        },
+        "caption": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Caption"
+        }
+      },
+      "title": "Table",
+      "type": "object"
+    },
+    "TimelineStep": {
+      "properties": {
+        "when": {
+          "title": "When",
+          "type": "string"
+        },
+        "what": {
+          "title": "What",
+          "type": "string"
+        },
+        "detail": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Detail"
+        }
+      },
+      "required": [
+        "when",
+        "what"
+      ],
+      "title": "TimelineStep",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "client": {
+      "title": "Client",
+      "type": "string"
+    },
+    "title": {
+      "title": "Title",
+      "type": "string"
+    },
+    "subtitle": {
+      "default": "Vantage dossier",
+      "title": "Subtitle",
+      "type": "string"
+    },
+    "as_of": {
+      "default": "",
+      "title": "As Of",
+      "type": "string"
+    },
+    "audience": {
+      "default": "",
+      "title": "Audience",
+      "type": "string"
+    },
+    "thesis": {
+      "default": "",
+      "title": "Thesis",
+      "type": "string"
+    },
+    "slides": {
+      "items": {
+        "$ref": "#/$defs/Slide"
+      },
+      "title": "Slides",
+      "type": "array"
+    }
+  },
+  "required": [
+    "client",
+    "title"
+  ],
+  "title": "DeckPlan",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Vantage export DeckPlan"
+}
