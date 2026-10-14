@@ -14,61 +14,61 @@ keywords = ["vantage", "multi-agent", "research", "account-intelligence", "llm"]
 dependencies = [
   "anthropic>=0.121",
   "openai>=2.54",
-  "google-genai>=2.17",
-  "pydantic>=2.7",
+  "google-genai>=2.29.0",
+  "pydantic>=2.14.1",
   "pydantic-settings>=2.3",
   "httpx>=0.27",
   "tenacity>=8.3",
-  "python-dotenv>=1.0",
-  "typer>=0.27",
+  "python-dotenv>=1.2.4",
+  "typer>=0.27.3",
   "rich>=13.7",
-  "platformdirs>=4.2",
+  "platformdirs>=4.13.0",
   "aiofiles>=24.1",
-  "orjson>=3.10",
-  "tavily-python>=0.5",
-  "edgartools>=3.0",
-  "yfinance>=0.2.40",
+  "orjson>=3.13.0",
+  "tavily-python>=0.8.5",
+  "edgartools>=5.62.0",
+  "yfinance>=1.7.0",
 ]
 
 [project.optional-dependencies]
 # ── Framework backends (install the one you want to run) ──
-agent-sdk = ["claude-agent-sdk>=0.1"]
+agent-sdk = ["claude-agent-sdk>=0.2.165"]
 langgraph = [
-  "langgraph>=0.2",
-  "langchain-anthropic>=0.2",
-  "langchain-openai>=0.2",
-  "langchain-google-genai>=2.0",
+  "langgraph>=1.2.14",
+  "langchain-anthropic>=1.7.5",
+  "langchain-openai>=1.7.0",
+  "langchain-google-genai>=4.4.1",
 ]
-adk    = ["google-adk>=0.3"]
+adk    = ["google-adk>=2.11.0"]
 crewai = ["crewai>=0.70"]
 
 # ── Cloud SDKs (install the target you deploy to) ──
-cloud-gcp   = ["google-cloud-storage>=2.16", "google-cloud-run>=0.10", "google-auth>=2.30"]
-cloud-azure = ["azure-identity>=1.17", "azure-storage-blob>=12.20"]
-cloud-aws   = ["boto3>=1.34"]
+cloud-gcp   = ["google-cloud-storage>=3.17.0", "google-cloud-run>=0.16.2", "google-auth>=2.61.0"]
+cloud-azure = ["azure-identity>=1.26.0", "azure-storage-blob>=12.31.0"]
+cloud-aws   = ["boto3>=1.43.111"]
 
 # ── Export: dossier -> PPTX / DOCX / PDF / self-contained HTML (`vantage export`) ──
 export = [
   "python-pptx>=1.0.2",
   "python-docx>=1.2",
   "matplotlib>=3.9",
-  "numpy>=2.0",
+  "numpy>=2.5.4",
   "pypdf>=5.0",
   "pillow>=11.0",
   "plotly>=6.0",
 ]
 
 # ── Dev ──
-dev = ["vantage[export]", "pytest>=8.2", "pytest-asyncio>=0.23", "ruff>=0.6", "mypy>=1.11", "types-aiofiles",
+dev = ["vantage[export]", "pytest>=8.2", "pytest-asyncio>=0.23", "ruff>=0.17.0", "mypy>=2.4.0", "types-aiofiles",
        # validates config/default.json against its own schema in the test suite
        "jsonschema>=4.22"]
 
 # Convenience: every cloud SDK at once (frameworks are intentionally NOT bundled here —
 # choose one to avoid resolver conflicts).
 cloud = [
-  "google-cloud-storage>=2.16", "google-cloud-run>=0.10", "google-auth>=2.30",
-  "azure-identity>=1.17", "azure-storage-blob>=12.20",
-  "boto3>=1.34",
+  "google-cloud-storage>=3.17.0", "google-cloud-run>=0.16.2", "google-auth>=2.61.0",
+  "azure-identity>=1.26.0", "azure-storage-blob>=12.31.0",
+  "boto3>=1.43.111",
 ]
 
 [project.scripts]
