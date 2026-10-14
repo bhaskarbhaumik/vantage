@@ -47,6 +47,7 @@ class WorkflowBackend(Backend):
             "account_context": job.account_context,
             "known_relationship_context": job.known_relationship_context,
             "strategic_pursuit_objectives": job.strategic_pursuit_objectives,
+            "remediation_rounds": job.remediation_rounds,
         }
         prompt = (
             "Use a workflow (this is an explicit opt-in). Run the workflow at "

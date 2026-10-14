@@ -60,6 +60,8 @@ class RunJob:
     account_context: str = "NONE"
     known_relationship_context: str = "NONE"
     strategic_pursuit_objectives: str = "NONE"
+    #: P7R owner-remediation rounds after verification (0-2). Only the workflow backend runs P7R.
+    remediation_rounds: int = 1
 
 
 @dataclass
