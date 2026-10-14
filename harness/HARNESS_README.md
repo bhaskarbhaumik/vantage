@@ -1,15 +1,11 @@
 # Vantage v3.0.0 Harness
 
 The prompt library and execution graph that produce a Vantage dossier — *Verified Account Navigator: Targeting, Analysis & GTM Engine*. Implements
-`aid-20260829.md` (AID Prompt Package v3.0.0, Vantage contributors).
+`vantage-20260829.md` (Vantage Prompt Package v3.0.0, Vantage contributors), kept for reference in
+[`docs/prompts/vantage-v1/`](../docs/prompts/vantage-v1/vantage-20260829.md).
 
-**Architecture and design rationale:** `ARCHITECTURE.md`.
-
-**Reverting the report format:** `.superseded-aid-v3/` holds the pre-rename AID v3.0.0
-harness. `scripts/backout-vantage-v1-to-aid.sh apply|restore|status` swaps the two. The
-engine follows whichever is installed — filenames resolve through `Blueprint._resolve()`
-and the dossier is named `<slug>-vantage.md` or `<slug>-aid.md` accordingly — so no engine
-source changes. `.superseded-v2/` is the older v2.1/v2.2 harness; nothing reads from it.
+**Architecture and design rationale:** [`ARCHITECTURE.md`](ARCHITECTURE.md). User documentation:
+[`docs/`](../docs/README.md).
 
 ---
 
@@ -23,6 +19,8 @@ harness/
     id-allocation.md                  per-agent ID blocks; collision avoidance under parallelism
     briefs/_common.md                 shared preamble every brief inherits
     briefs/00-preflight.md … 28-assembly.md   one brief per agent
+    briefs/26a-remediation-router.md  P7R: turns verification findings into owner work orders
+    briefs/26b-remediation-pass.md    P7R: how an owner revises its own section
   blueprint/
     vantage-blueprint-v3.md               what each of the 22 sections contains
     section-contracts.md              who writes it · envelope · evidence bar · dependencies
@@ -34,7 +32,7 @@ harness/
     tooling-map.md                    section → where its evidence actually lives
   state/state.schema.json             schema 3.0 — the v3 handoff contract, extended
   workflows/vantage-v3.workflow.mjs       the Claude Code Workflow runner
-  .superseded-v2/                     the frozen v2 generation; nothing reads from it
+  export/                             the export harness (see export/README.md)
 ```
 
 The Markdown **is** the harness. The workflow script passes paths, never content — so you can edit
@@ -45,10 +43,13 @@ any brief, rubric, or contract without touching the runner.
 ### Through the CLI (recommended)
 
 ```bash
-vantage run --client "Acme Industries, Inc." --slug acme-2026-08
-vantage run -c "Acme" -s acme --tier EXECUTIVE
-vantage run -c "Acme" -s acme --capability-pack ATTACHED --input-sheet ATTACHED
+uv run vantage run --client "Acme Industries, Inc." --slug acme-2026-08
+uv run vantage run -c "Acme" -s acme --tier EXECUTIVE
+uv run vantage run -c "Acme" -s acme --capability-pack ATTACHED --input-sheet ATTACHED
+uv run vantage run -c "Acme" -s acme --remediation-rounds 2
 ```
+
+See [`docs/cli.md`](../docs/cli.md) for every option.
 
 ### Through Claude Code directly
 
@@ -80,6 +81,7 @@ vantage run -c "Acme" -s acme --capability-pack ATTACHED --input-sheet ATTACHED
 | `strategic_pursuit_objectives` | | `NONE` | Drives §2.1 intelligence questions |
 | `harness_dir` | | `harness` | |
 | `run_dir` | | `runs/<slug>` | |
+| `remediation_rounds` | | `1` | `0`–`2`. Owner-remediation rounds after verification (P7R); `0` disables. Workflow backend only |
 
 ## Output tiers
 
@@ -89,7 +91,14 @@ vantage run -c "Acme" -s acme --capability-pack ATTACHED --input-sheet ATTACHED
 | `STANDARD` | §0–§20, Opt subsections only where evidenced | 21.1–21.4, 21.8–21.12 | 29 |
 | `FULL_ANNEX` | All 22 sections | 21.1–21.12 | 29 — the default |
 
+Agent counts exclude P7R. When verification finds BLOCKERs, each remediation round adds a router,
+one agent per owner with an order, a re-sync agent for each synthesis owner downstream of a
+rewritten section (up to five), one or two state re-merges, and a re-verification.
+
 ## Run output layout
+
+The workflow's own default `run_dir` is `runs/<slug>`; the CLI passes
+`<engine.output_dir>/<slug>` (default `~/.cache/vantage/run/<slug>`).
 
 ```
 runs/<slug>/
@@ -101,7 +110,9 @@ runs/<slug>/
     fragments/<agent>.json          per-agent contributions before merge
   qa/
     evidence-audit.json             adversarial verdicts; the refuted list is BINDING
-    verification-report.md/.json    V1–V12 outcomes, Overall Confidence, disclosures
+    verification-report.md/.json    V1–V12 outcomes, Overall Confidence, disclosures (final pass)
+    verification-report.r<n>.*      the report as it stood before remediation round n+1
+    remediation-orders.r<n>.json    P7R work orders: findings routed to owning agents, and the unroutable
     source-rewrite-map.json         retired → kept source IDs after dedup
   run.jsonl                         structured event stream
 ```
@@ -144,4 +155,4 @@ fields.
 | Overall Confidence `Insufficient` | Evidence base too thin for the tier | Reduce scope to `EXECUTIVE`, or extend budgets and re-run the topics §21.12 flags. |
 | §18 is thin after a full run | The adversarial audit refuted the claims the opportunities rested on | Working as intended. Read `qa/evidence-audit.json` — the refutations are the finding. |
 | Every organization field says `[INTERNAL…]` | No Capability Pack / Input Sheet attached | Expected. Attach them and re-run. |
-| `doctor` reports role_model_map drift | A user config predating v3 at `~/.config/vantage/default.json` | Update it, or delete it to fall back to the shipped template. |
+| `doctor` reports role_model_map drift | A user config predating v3 at `~/.config/vantage/default.json` | `vantage config migrate --dry-run`, then `vantage config migrate`. |

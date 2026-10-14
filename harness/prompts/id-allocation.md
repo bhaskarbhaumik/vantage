@@ -1,6 +1,6 @@
 # ID Allocation Table v3.0.0 — collision avoidance under parallel execution
 
-> **Why this file exists.** `aid-20260829.md` assumes sequential phases with an append-only handoff
+> **Why this file exists.** `vantage-20260829.md` assumes sequential phases with an append-only handoff
 > file, so "next free ID" is unambiguous. This harness runs up to **ten agents concurrently** with
 > no shared runtime state, so "next free ID" is undefined and every one of them would mint `S1`.
 > ID space is therefore **partitioned in advance**. Every agent gets a numeric block and uses only
@@ -66,6 +66,7 @@ Block index `k` ⇒ the agent owns `S-`, `G-`, `X-`, and `Q-` numbers in `[k·10
 | 24 | `exec-brief` | P6 | 2400–2499 | §1 | — |
 | 25 | `methodology` | P6 | 2500–2599 | §2 | — |
 | 26 | `verification` | P7 | 2600–2699 | §21.8 Verification Summary | — |
+| 26a | `remediation-router` | P7R | — | — (work orders: `qa/remediation-orders.r<n>.json`) | **mints nothing** |
 | 27 | `appendices` | P8 | 2700–2799 | §21.2–21.7 | — |
 | 28 | `assembly` | P8 | — | Title metadata + final document | **mints nothing** |
 
@@ -96,7 +97,12 @@ Block index `k` ⇒ the agent owns `S-`, `G-`, `X-`, and `Q-` numbers in `[k·10
 7. **Superseding a claim.** A later stage may never silently edit an earlier claim. It adds a new
    claim in its own section **plus** an `X-nnnn` contradiction object pointing at both.
 
-8. **Locators are not IDs.** `[S-0301 §Item 1A]` cites source `S-0301` with a pinpoint. The pinpoint
+8. **Remediation passes (P7R) reuse the owner's block.** An agent re-dispatched to fix its own
+   section mints only in its own block, continues its own numbering (never reuses an ID), and
+   supersedes rather than edits (rule 7). A re-run of `verification` uses block 2600–2699 again
+   and continues after the highest ID the first pass minted.
+
+9. **Locators are not IDs.** `[S-0301 §Item 1A]` cites source `S-0301` with a pinpoint. The pinpoint
    is free text; the ID must exist in the manifest.
 
 ## 4. Worked example

@@ -166,12 +166,75 @@ class OutputCfg(SectionCfg):
     keep_state: Literal[True] = True
 
 
+ExportFormat = Literal["pptx", "docx", "pdf", "html"]
+
+
+class ExportHelpersCfg(SectionCfg):
+    """External helper CLIs ``vantage export`` calls when they are on PATH.
+
+    Every helper is optional: a missing binary or key degrades to the built-in fallback and is
+    reported by ``vantage doctor``, never a failed export.
+    """
+
+    #: ``get-icon`` — icons for slide headers, KPI tiles and section dividers.
+    icons: bool = True
+    #: ``get-brand`` — logo, palette and typography for ``export.brand`` and the client cover logo.
+    brand: bool = True
+    #: ``get-stock`` — semantically matched splash images for covers and section openers.
+    stock_images: bool = True
+    #: Diagram renderer for figure-spec blocks. ``auto`` picks dgm, then drawio, then Mermaid.
+    diagrams: Literal["auto", "dgm", "drawio", "mermaid", "none"] = "auto"
+    #: ``napkin`` concept illustrations. Spends Napkin credits, so it is opt-in.
+    illustrations: Literal["none", "napkin"] = "none"
+    #: Chart renderer for chart-spec blocks.
+    charts: Literal["matplotlib", "plotly"] = "matplotlib"
+    #: LibreOffice binary used to convert the whitepaper to PDF.
+    libreoffice_bin: str = "soffice"
+    #: Seconds before any one helper call is abandoned.
+    timeout_seconds: float = Field(default=60, gt=0)
+
+
+class ExportCfg(SectionCfg):
+    """Defaults for ``vantage export`` — turning a finished dossier into collateral."""
+
+    formats: list[ExportFormat] = Field(
+        default_factory=lambda: ["pptx", "docx", "pdf", "html"], min_length=1)
+    #: exec ≈ 18 slides / ~40 pp · standard ≈ 31 slides / ~125 pp · full = every section + appendix.
+    depth: Literal["exec", "standard", "full"] = "standard"
+    #: Shape of the self-contained HTML output.
+    site_mode: Literal["microsite", "deck"] = "microsite"
+    #: ``deterministic`` maps the dossier to plans directly; ``agents`` lets Claude author them.
+    authoring: Literal["deterministic", "agents"] = "deterministic"
+    #: Output directory. null = ``<run dir>/exports``.
+    out_dir: str | None = None
+    #: Marking printed on every page, slide and screen.
+    classification: str = Field(default="Confidential", min_length=1)
+    #: Domain of the organization whose brand themes the collateral (via get-brand).
+    #: null = the neutral Vantage theme.
+    brand: str | None = None
+    #: Put the client's own logo on the cover (via get-brand).
+    client_logo: bool = True
+    helpers: ExportHelpersCfg = Field(default_factory=ExportHelpersCfg)
+
+
+class UiCfg(SectionCfg):
+    """Terminal presentation for the CLI and the Ink TUI."""
+
+    #: ``nerd`` assumes a Nerd Font; ``unicode`` uses plain symbols; ``ascii`` is 7-bit only.
+    icons: Literal["nerd", "unicode", "ascii"] = "nerd"
+    #: ``auto`` honours NO_COLOR and whether stdout is a TTY.
+    color: Literal["auto", "always", "never"] = "auto"
+    theme: Literal["dark", "light"] = "dark"
+    #: Spinners and live redraws. Off for screen readers and CI logs.
+    animations: bool = True
+
+
 class Config(BaseModel):
     """Top-level engine configuration. Tolerant of unknown keys ($schema, _note, …)."""
 
     model_config = ConfigDict(extra="ignore")
 
-    version: str = "2.1"
+    version: str = "2.2"
     engine: EngineCfg = Field(default_factory=EngineCfg)
     auth: AuthCfg = Field(default_factory=AuthCfg)
     models: ModelsCfg = Field(default_factory=ModelsCfg)
@@ -181,6 +244,8 @@ class Config(BaseModel):
     cloud: CloudCfg = Field(default_factory=CloudCfg)
     run_defaults: RunDefaultsCfg = Field(default_factory=RunDefaultsCfg)
     output: OutputCfg = Field(default_factory=OutputCfg)
+    export: ExportCfg = Field(default_factory=ExportCfg)
+    ui: UiCfg = Field(default_factory=UiCfg)
 
     def model_for_role(self, role: str) -> ModelRef:
         """Resolve an agent label to its model tier, defaulting to `research`."""

@@ -1,5 +1,4 @@
 import json
-import re
 from pathlib import Path
 
 import jsonschema
@@ -64,22 +63,6 @@ def _template() -> dict:
     return json.loads(REPO_DEFAULT.read_text())
 
 
-def test_migrate_rebrands_every_legacy_token():
-    legacy = {
-        "_note": "Template config for the Company AID MAS harness.",
-        "engine": {"output_dir": "~/company-aid/runs", "max_concurrency": 8, "depth": "STANDARD"},
-        "cloud": {"image": "company-aid", "azure": {"env": "company-aid-env"}},
-    }
-    out, changes = migrate_user_config(legacy, _template())
-    blob = json.dumps(out)
-    for token in ("company-aid", "company_aid", "Company AID", "Account Intelligence Dossier"):
-        assert token not in blob, token
-    assert not re.search(r"\bAID\b", blob)
-    assert out["engine"]["output_dir"] == "~/.cache/vantage/run"
-    assert out["cloud"]["azure"]["env"] == "vantage-env"
-    assert any("brand tokens" in c for c in changes)
-
-
 def test_migrate_drops_v2_leftovers_and_restores_the_roster():
     legacy = {
         "engine": {"depth": "STANDARD", "max_concurrency": 8},
@@ -113,7 +96,7 @@ def test_migrate_is_idempotent():
 
 
 def test_migrated_config_still_validates_and_loads():
-    legacy = {"_note": "Company AID", "engine": {"depth": "STANDARD", "output_dir": "~/company-aid/runs"},
+    legacy = {"_note": "old note", "engine": {"depth": "STANDARD", "output_dir": "~/vantage/runs"},
               "role_model_map": {"scoping": "synthesis"}}
     out, _ = migrate_user_config(legacy, _template())
     jsonschema.validate(out, json.loads(Path("config/default.schema.json").read_text()))

@@ -1,7 +1,7 @@
 """Canonical Vantage run state (schema 3.0) as tolerant Pydantic models.
 
 Mirrors ``harness/state/state.schema.json``, which implements the v3 handoff contract of
-``aid-20260829.md`` extended with the registers a parallel harness needs. Agent *fragments* are
+``vantage-20260829.md`` extended with the registers a parallel harness needs. Agent *fragments* are
 validated loosely (``extra='allow'``) because they are authored by an LLM; the merge logic below
 assembles them into a single ``VantageState`` that assembly and §21 consume.
 """

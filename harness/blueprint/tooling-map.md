@@ -1,6 +1,6 @@
 # Tooling Map v3.0.0 — where each section's evidence actually lives
 
-> Condensed from `aid-tools-20260829.md` (AID Deep-Research Tooling Catalog v2.0.0, last verified
+> Condensed from `vantage-tools-20260829.md` (Vantage Deep-Research Tooling Catalog v2.0.0, last verified
 > 2026-08-29) into the form an agent needs at runtime: **for my section, what do I search, in what
 > order, and what is that source class worth?**
 >

@@ -1,0 +1,7 @@
+#compdef vantage
+
+_vantage_completion() {
+  eval $(env _TYPER_COMPLETE_ARGS="${words[1,$CURRENT]}" _VANTAGE_COMPLETE=complete_zsh vantage)
+}
+
+compdef _vantage_completion vantage

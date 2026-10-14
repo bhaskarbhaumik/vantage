@@ -1,8 +1,8 @@
 # Vantage Dossier Blueprint v3.0.0
 
-**Source of truth:** `aid-20260829.md` — *Account Intelligence Dossier — Combined Prompt (Claude
+**Source of truth:** `vantage-20260829.md` — *Vantage dossier — Combined Prompt (Claude
 Fable 5)*, v3.0.0 (2026-08-29), Vantage contributors.
-**Supersedes:** `aid-blueprint-v2.1.md` (content v2.2). The v2 section numbering does **not**
+**Supersedes:** `vantage-blueprint-v2.1.md` (content v2.2). The v2 section numbering does **not**
 survive — v3 renumbers to a 22-section structure (§0–§21). A migration table is at the end.
 
 > This file says **what each section contains**. `section-contracts.md` says **who writes it, how

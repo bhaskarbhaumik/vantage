@@ -1,0 +1,10 @@
+{"type": "stage_start", "ts": 1760451000.0, "stage": "ingest", "agent": null, "message": null, "data": {}}
+{"type": "stage_done", "ts": 1760451001.0, "stage": "ingest", "agent": null, "message": "22 sections", "data": {}}
+{"type": "stage_start", "ts": 1760451001.0, "stage": "plan", "agent": null, "message": null, "data": {}}
+{"type": "stage_done", "ts": 1760451002.0, "stage": "plan", "agent": null, "message": null, "data": {}}
+{"type": "run_warning", "ts": 1760451002.0, "stage": "assets", "agent": null, "message": "get-brand not on PATH - neutral theme", "data": {}}
+{"type": "stage_start", "ts": 1760451003.0, "stage": "render:pptx", "agent": null, "message": null, "data": {}}
+{"type": "artifact", "ts": 1760451004.0, "stage": "render:pptx", "agent": null, "message": null, "data": {"format": "pptx", "path": "/tmp/vantage/run/example-2026-10/exports/example-2026-10.pptx", "bytes": 2400000, "slides": 24}}
+{"type": "stage_done", "ts": 1760451004.0, "stage": "render:pptx", "agent": null, "message": null, "data": {}}
+{"type": "run_done", "ts": 1760451005.0, "stage": null, "agent": null, "message": "exported", "data": {}}
+{"result": {"out_dir": "/tmp/vantage/run/example-2026-10/exports", "manifest": "/tmp/vantage/run/example-2026-10/exports/manifest.json", "artifacts": [{"format": "pptx", "path": "/tmp/vantage/run/example-2026-10/exports/example-2026-10.pptx", "bytes": 2400000, "pages": null, "slides": 24}], "warnings": ["get-brand not on PATH - neutral theme"], "plans": {"deck": "scaffold"}, "verification": null}}

@@ -1,0 +1,7 @@
+#compdef vantage-engine
+
+_vantage_engine_completion() {
+  eval $(env _TYPER_COMPLETE_ARGS="${words[1,$CURRENT]}" _VANTAGE_ENGINE_COMPLETE=complete_zsh vantage-engine)
+}
+
+compdef _vantage_engine_completion vantage-engine

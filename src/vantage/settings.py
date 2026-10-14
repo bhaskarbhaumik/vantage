@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import json
 import os
-import re
 from copy import deepcopy
 from pathlib import Path
 from typing import Any
@@ -124,35 +123,10 @@ def load_config(path: str | None = None, overrides: dict | None = None) -> Confi
     return Config.model_validate(data)
 
 
-# Pre-rename tokens that may survive in a user config copied over from the company-aid era.
-# Longest first: "Account Intelligence Dossier" must match before the bare "AID" inside it.
-_LEGACY_STRINGS: tuple[tuple[str, str], ...] = (
-    ("Account Intelligence Dossier", "Vantage"),
-    ("Company AID", "Vantage"),
-    ("company-aid", "vantage"),
-    ("company_aid", "vantage"),
-    ("COMPANY_AID", "VANTAGE"),
-)
-_LEGACY_AID = re.compile(r"\bAID\b")
-
-
-def _rebrand(value: Any) -> Any:
-    """Rewrite pre-rename brand tokens anywhere in a config value, recursively."""
-    if isinstance(value, str):
-        for old, new in _LEGACY_STRINGS:
-            value = value.replace(old, new)
-        return _LEGACY_AID.sub("Vantage", value)
-    if isinstance(value, dict):
-        return {k: _rebrand(v) for k, v in value.items()}
-    if isinstance(value, list):
-        return [_rebrand(v) for v in value]
-    return value
-
-
 def migrate_user_config(user: dict, template: dict) -> tuple[dict, list[str]]:
     """Bring a user config up to the current schema. Returns ``(config, change log)``.
 
-    Deliberately conservative: it rebrands strings, reconciles ``role_model_map`` against the live
+    Deliberately conservative: it reconciles ``role_model_map`` against the live
     agent roster, and fills in keys the template has gained — but it does not prune unrecognised
     keys generally, because ``cloud`` and ``providers`` are open-ended and a deliberate extra there
     is indistinguishable from a leftover.
@@ -167,12 +141,6 @@ def migrate_user_config(user: dict, template: dict) -> tuple[dict, list[str]]:
     out = _deep_merge(template, user)
     if out != user:
         changes.append("filled missing settings from the shipped template")
-
-    rebranded = _rebrand(out)
-    if rebranded != out:
-        changes.append("rewrote pre-rename brand tokens (company-aid / Company AID / AID / "
-                       "Account Intelligence Dossier) to Vantage")
-        out = rebranded
 
     old_output = out["engine"]["output_dir"]
     legacy_paths = {Path(p).expanduser() for p in ("~/vantage/runs", "~/.cache/vantage/runs")}

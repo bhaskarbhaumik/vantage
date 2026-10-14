@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://raw.githubusercontent.com/bhaskarbhaumik/vantage/main/harness/state/state.schema.json",
   "title": "Vantage run state (schema 3.0)",
-  "description": "The canonical run state. Implements the v3 handoff contract of aid-20260829.md, extended with the registers a parallel harness needs (id_blocks, single-owner registers, per-agent coverage records, evidence-audit verdicts). Agent fragments are a subset of this shape and are merged into it; the merged document is what §21 renders from.",
+  "description": "The canonical run state. Implements the v3 handoff contract of vantage-20260829.md, extended with the registers a parallel harness needs (id_blocks, single-owner registers, per-agent coverage records, evidence-audit verdicts). Agent fragments are a subset of this shape and are merged into it; the merged document is what §21 renders from.",
   "type": "object",
   "additionalProperties": true,
   "required": ["schema_version", "run_contract"],

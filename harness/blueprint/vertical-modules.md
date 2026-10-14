@@ -1,6 +1,6 @@
 # Vertical Modules v3.0.0 — eleven modules
 
-> `aid-20260829.md` names eleven verticals and the sections each one enhances, but leaves the
+> `vantage-20260829.md` names eleven verticals and the sections each one enhances, but leaves the
 > content of the enhancement unwritten. This file authors it. Modules are self-contained packets
 > injected at declared anchors; they **supplement** the owning agent's section and never replace it.
 
@@ -51,7 +51,7 @@ NACE and ISIC are all supported as inputs; none of them is decisive on its own.
 
 ## Enhanced sections per vertical
 
-From `aid-20260829.md` §Vertical & Classification Model. These are the subsections where the module
+From `vantage-20260829.md` §Vertical & Classification Model. These are the subsections where the module
 materially changes what "complete" means.
 
 | Vertical | Enhanced sections |

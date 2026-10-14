@@ -1,0 +1,67 @@
+name: Bug report
+description: Something in the engine, CLI, TUI, export or plugin does not work as documented.
+title: "bug: "
+labels: [bug, triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. **Do not paste API keys, `.env` contents or confidential dossier
+        text.** Redact client names if the run is confidential. Security issues go through
+        [private reporting](https://github.com/bhaskarbhaumik/vantage/security/advisories/new).
+  - type: input
+    id: version
+    attributes:
+      label: Vantage version
+      description: Output of `vantage version`.
+      placeholder: "0.2.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      options:
+        - Engine / pipeline
+        - CLI (`vantage`)
+        - TUI (`vantage-tui`)
+        - Export (`vantage export`)
+        - Claude Code plugin or /vantage command
+        - Harness / workflow runner
+        - Deployment
+        - Other
+    validations:
+      required: true
+  - type: dropdown
+    id: backend
+    attributes:
+      label: Backend
+      options: [workflow, api, agent-sdk, langgraph, adk, crewai, not applicable]
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: The exact command(s), with secrets and confidential values removed.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: doctor
+    attributes:
+      label: "`vantage doctor` output"
+      description: Check that it contains no secrets before you submit.
+      render: text
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: "macOS 15, Python 3.14 via uv, Node 22, terminal: iTerm2"

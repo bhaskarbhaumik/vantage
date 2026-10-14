@@ -1,6 +1,6 @@
 # Verification Protocol v3.0.0 — the executable gate
 
-> Implements the **Verification Pass** of `aid-20260829.md` ("Verify as a skeptical reviewer who
+> Implements the **Verification Pass** of `vantage-20260829.md` ("Verify as a skeptical reviewer who
 > did not write the dossier") as twelve executable check families. The spec's six mandatory checks
 > map to **V2** (numeric), **V3** (claim-ledger audit), **V10d** (contradiction sweep), **V4**
 > (entity), **V5** (status honesty), and **V11** (coverage). The remaining families exist because
@@ -144,7 +144,7 @@
 ## V10 — Parallel-execution integrity
 
 > These four failure modes exist only because agents run concurrently. A sequential run cannot
-> produce them, so `aid-20260829.md` does not check for them — and this harness must.
+> produce them, so `vantage-20260829.md` does not check for them — and this harness must.
 
 | ID | Check | Sev |
 |---|---|---|
@@ -183,8 +183,8 @@
 
 ## Overall Confidence (title metadata)
 
-The dossier's title block carries **Overall Confidence**, computed after the pass. It is a decision
-aid about the *document*, not a measurement of the *company*.
+The dossier's title block carries **Overall Confidence**, computed after the pass. It is decision
+support about the *document*, not a measurement of the *company*.
 
 ```
 EQI = 100 × ( 0.30·S_evidence + 0.25·S_coverage + 0.20·S_corroboration

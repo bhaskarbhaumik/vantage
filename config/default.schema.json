@@ -248,6 +248,158 @@
       "title": "EngineCfg",
       "type": "object"
     },
+    "ExportCfg": {
+      "additionalProperties": false,
+      "description": "Defaults for ``vantage export`` \u2014 turning a finished dossier into collateral.",
+      "properties": {
+        "formats": {
+          "items": {
+            "enum": [
+              "pptx",
+              "docx",
+              "pdf",
+              "html"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Formats",
+          "type": "array"
+        },
+        "depth": {
+          "default": "standard",
+          "enum": [
+            "exec",
+            "standard",
+            "full"
+          ],
+          "title": "Depth",
+          "type": "string"
+        },
+        "site_mode": {
+          "default": "microsite",
+          "enum": [
+            "microsite",
+            "deck"
+          ],
+          "title": "Site Mode",
+          "type": "string"
+        },
+        "authoring": {
+          "default": "deterministic",
+          "enum": [
+            "deterministic",
+            "agents"
+          ],
+          "title": "Authoring",
+          "type": "string"
+        },
+        "out_dir": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Out Dir"
+        },
+        "classification": {
+          "default": "Confidential",
+          "minLength": 1,
+          "title": "Classification",
+          "type": "string"
+        },
+        "brand": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Brand"
+        },
+        "client_logo": {
+          "default": true,
+          "title": "Client Logo",
+          "type": "boolean"
+        },
+        "helpers": {
+          "$ref": "#/$defs/ExportHelpersCfg"
+        }
+      },
+      "title": "ExportCfg",
+      "type": "object"
+    },
+    "ExportHelpersCfg": {
+      "additionalProperties": false,
+      "description": "External helper CLIs ``vantage export`` calls when they are on PATH.\n\nEvery helper is optional: a missing binary or key degrades to the built-in fallback and is\nreported by ``vantage doctor``, never a failed export.",
+      "properties": {
+        "icons": {
+          "default": true,
+          "title": "Icons",
+          "type": "boolean"
+        },
+        "brand": {
+          "default": true,
+          "title": "Brand",
+          "type": "boolean"
+        },
+        "stock_images": {
+          "default": true,
+          "title": "Stock Images",
+          "type": "boolean"
+        },
+        "diagrams": {
+          "default": "auto",
+          "enum": [
+            "auto",
+            "dgm",
+            "drawio",
+            "mermaid",
+            "none"
+          ],
+          "title": "Diagrams",
+          "type": "string"
+        },
+        "illustrations": {
+          "default": "none",
+          "enum": [
+            "none",
+            "napkin"
+          ],
+          "title": "Illustrations",
+          "type": "string"
+        },
+        "charts": {
+          "default": "matplotlib",
+          "enum": [
+            "matplotlib",
+            "plotly"
+          ],
+          "title": "Charts",
+          "type": "string"
+        },
+        "libreoffice_bin": {
+          "default": "soffice",
+          "title": "Libreoffice Bin",
+          "type": "string"
+        },
+        "timeout_seconds": {
+          "default": 60,
+          "exclusiveMinimum": 0,
+          "title": "Timeout Seconds",
+          "type": "number"
+        }
+      },
+      "title": "ExportHelpersCfg",
+      "type": "object"
+    },
     "MarketDataCfg": {
       "additionalProperties": false,
       "properties": {
@@ -588,6 +740,48 @@
       "title": "ToolsCfg",
       "type": "object"
     },
+    "UiCfg": {
+      "additionalProperties": false,
+      "description": "Terminal presentation for the CLI and the Ink TUI.",
+      "properties": {
+        "icons": {
+          "default": "nerd",
+          "enum": [
+            "nerd",
+            "unicode",
+            "ascii"
+          ],
+          "title": "Icons",
+          "type": "string"
+        },
+        "color": {
+          "default": "auto",
+          "enum": [
+            "auto",
+            "always",
+            "never"
+          ],
+          "title": "Color",
+          "type": "string"
+        },
+        "theme": {
+          "default": "dark",
+          "enum": [
+            "dark",
+            "light"
+          ],
+          "title": "Theme",
+          "type": "string"
+        },
+        "animations": {
+          "default": true,
+          "title": "Animations",
+          "type": "boolean"
+        }
+      },
+      "title": "UiCfg",
+      "type": "object"
+    },
     "WebSearchCfg": {
       "additionalProperties": false,
       "properties": {
@@ -646,7 +840,7 @@
   "description": "Defaults < user config < VANTAGE_* environment < CLI overrides. See docs/configuration.md for model sources and backend applicability.",
   "properties": {
     "version": {
-      "default": "2.1",
+      "default": "2.2",
       "title": "Version",
       "type": "string"
     },
@@ -689,6 +883,12 @@
     },
     "output": {
       "$ref": "#/$defs/OutputCfg"
+    },
+    "export": {
+      "$ref": "#/$defs/ExportCfg"
+    },
+    "ui": {
+      "$ref": "#/$defs/UiCfg"
     },
     "$schema": {
       "type": "string"

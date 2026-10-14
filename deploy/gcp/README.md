@@ -5,8 +5,8 @@
 printf '%s' "$ANTHROPIC_API_KEY" | gcloud secrets create anthropic-api-key --data-file=-
 printf '%s' "$TAVILY_API_KEY"    | gcloud secrets create tavily-api-key --data-file=-
 
-# 2. Build + deploy the job (or: vantage-engine deploy --target gcp)
-uv run vantage-engine deploy --target gcp
+# 2. Build + deploy the job (or: vantage deploy --target gcp)
+uv run vantage deploy --target gcp
 
 # 3. Execute a dossier
 gcloud run jobs execute vantage --region us-central1 \

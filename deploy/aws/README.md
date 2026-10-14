@@ -1,8 +1,8 @@
 # AWS — ECS Fargate task
 
 ```bash
-# 1. Build + push + register (or: vantage-engine deploy --target aws)
-uv run vantage-engine deploy --target aws
+# 1. Build + push + register (or: vantage deploy --target aws)
+uv run vantage deploy --target aws
 
 # 2. Fill in deploy/aws/task-def.json: <ACCOUNT_ID>, <REGION>, role ARNs, EFS id, secret ARNs.
 #    Store secrets in Secrets Manager: anthropic-api-key, tavily-api-key, sec-edgar-identity.

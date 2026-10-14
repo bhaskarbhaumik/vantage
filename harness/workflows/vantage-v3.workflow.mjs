@@ -10,6 +10,7 @@ export const meta = {
     { title: 'P5 Synthesis',   detail: '§18 opportunity register (mints O-nn), then §19 account strategy and §20 playbook concurrently' },
     { title: 'P6 Brief',       detail: 'Re-merge state, then §1 executive summary (written last) and §2 methodology, concurrently' },
     { title: 'P7 Verification',detail: 'Re-merge state, then V1-V12 with fresh context; the six spec-mandated Pass checks; Overall Confidence / EQI' },
+    { title: 'P7R Remediation',detail: 'If verification found BLOCKERs: route findings to owning agents, owners rewrite their own sections in dependency order, re-merge, re-verify with fresh context' },
     { title: 'P8 Assemble',    detail: '§21.2-21.7 narrative appendices, re-merge state, then collate and generate §21.1/21.9/21.10/21.11/21.12' },
   ],
 }
@@ -47,8 +48,15 @@ const PURSUIT_OBJECTIVES = P.strategic_pursuit_objectives || 'NONE'
 const H       = P.harness_dir || 'harness'
 const RUN_DIR = P.run_dir     || `runs/${SLUG}`
 
+// Owner-remediation rounds after verification (P7R). 0 disables the loop; capped at 2 because
+// a third round on the same findings is a research problem, not a rewriting one.
+const REMEDIATION_ROUNDS = Number(P.remediation_rounds ?? 1)
+
 if (!['EXECUTIVE', 'STANDARD', 'FULL_ANNEX'].includes(OUTPUT_TIER)) {
   throw new Error(`vantage-v3: output_tier must be EXECUTIVE | STANDARD | FULL_ANNEX, got "${OUTPUT_TIER}"`)
+}
+if (![0, 1, 2].includes(REMEDIATION_ROUNDS)) {
+  throw new Error(`vantage-v3: remediation_rounds must be 0, 1 or 2, got "${P.remediation_rounds}"`)
 }
 
 // ---------------------------------------------------------------------------
@@ -768,18 +776,20 @@ log(`State re-merged before verification: ${remergeP6 || '(no return)'}`)
 
 phase('P7 Verification')
 
-const ver = await agent(
-  build('26-verification.md', 'verification',
-    `You are running with FRESH CONTEXT and did not write this dossier. The digests below are
+// The verifier's prompt is built by a function because P7R re-runs it after owner remediation.
+// For the first pass it must stay byte-identical to the original inline prompt: a resumed run
+// replays an agent from cache only when its prompt and options are unchanged.
+const verificationUpstream = (expectedTag, roundNote) => `You are running with FRESH CONTEXT and did not write this dossier. The digests below are
 context only — verify against the ARTEFACTS on disk, not against these claims about them.
 
 ${CTX0}
 
 Sections are in ${RUN_DIR}/sections/. State at ${RUN_DIR}/state/state.json was re-merged from
-every fragment immediately before this step and carries \`phase_completed: "P6"\`; check that field
+every fragment immediately before this step and carries \`phase_completed: "${expectedTag}"\`; check that field
 first and treat any earlier value as a V10e finding. The adversarial audit is
-${RUN_DIR}/qa/evidence-audit.json.`,
-    `Execute ${H}/blueprint/verification-protocol.md V1-V12 IN FULL. Write
+${RUN_DIR}/qa/evidence-audit.json.${roundNote ? `\n\n${roundNote}` : ''}`
+
+const VERIFICATION_EXTRA = `Execute ${H}/blueprint/verification-protocol.md V1-V12 IN FULL. Write
 ${RUN_DIR}/qa/verification-report.md, ${RUN_DIR}/qa/verification-report.json,
 ${RUN_DIR}/sections/21-8-verification.md, and ${RUN_DIR}/state/fragments/verification.json.
 
@@ -796,18 +806,266 @@ Any failure that cannot be remediated is DISCLOSED in the Verification Summary a
 NEVER MASKED.
 
 budget_limited_topics is not cosmetic: it tells the orchestrator that extending a fetch budget and
-re-running a topic would materially improve the dossier, as opposed to there being nothing to find.`),
+re-running a topic would materially improve the dossier, as opposed to there being nothing to find.`
+
+function logVerification(v, tag) {
+  if (!v) {
+    log(`⚠ Verification${tag} returned nothing — dossier is UNVERIFIED`)
+    return
+  }
+  log(`Verification${tag}: ${v.result} · Overall Confidence ${v.overall_confidence} (EQI ${v.eqi}) · ${v.blockers}B / ${v.majors}M / ${v.minors}m · ${v.checks_passed}/${v.checks_executed} checks passed`)
+  if (v.overall_confidence === 'Insufficient') log('⚠ Overall Confidence Insufficient — DO NOT PRESENT. Re-run with better sources or reduce scope.')
+  if ((v.budget_limited_topics || []).length) log(`ℹ Stopped on budget (not diminishing returns): ${v.budget_limited_topics.join(', ')} — extending the budget and re-running these would materially improve coverage`)
+}
+
+const ver0 = await agent(
+  build('26-verification.md', 'verification', verificationUpstream('P6'), VERIFICATION_EXTRA),
   { label: 'verification', phase: 'P7 Verification', schema: VERIFICATION_SCHEMA }
 )
+logVerification(ver0, '')
 
-if (ver) {
-  log(`Verification: ${ver.result} · Overall Confidence ${ver.overall_confidence} (EQI ${ver.eqi}) · ${ver.blockers}B / ${ver.majors}M / ${ver.minors}m · ${ver.checks_passed}/${ver.checks_executed} checks passed`)
-  if (ver.blockers > 0) log(`⚠ ${ver.blockers} BLOCKER(s) unremediated — see ${RUN_DIR}/qa/verification-report.md before any use`)
-  if (ver.overall_confidence === 'Insufficient') log('⚠ Overall Confidence Insufficient — DO NOT PRESENT. Re-run with better sources or reduce scope.')
-  if ((ver.budget_limited_topics || []).length) log(`ℹ Stopped on budget (not diminishing returns): ${ver.budget_limited_topics.join(', ')} — extending the budget and re-running these would materially improve coverage`)
-} else {
-  log('⚠ Verification returned nothing — dossier is UNVERIFIED')
+// ---------------------------------------------------------------------------
+// P7R — Owner remediation.
+//
+// Verification may downgrade a claim or add a label, but it may not rewrite another agent's
+// analysis (constitution §14.2). Without this step every finding that needs prose rewritten is
+// merely annotated, and the body keeps asserting what the evidence audit refuted: the dominant
+// BLOCKER pattern across every run before this step existed.
+//
+// So the findings go back to the agents that own the defective text. A router turns the report
+// into per-owner work orders; owners revise only their own section and fragment, in dependency
+// order — registers, then body, then §18, then §19/§20, then §1/§2 — because a qualifier lost in
+// §8 is restated in §18, §19 and §1, and fixing the restatements before the origin just
+// reintroduces the defect. State is re-merged and a FRESH verifier re-runs every check: a rewrite
+// can introduce a defect as easily as remove one.
+// ---------------------------------------------------------------------------
+
+const OWNERS = {
+  preflight:          { brief: '00-preflight.md',        out: '00-run-contract.md',      tier: 0 },
+  backbone:           { brief: '01-backbone.md',         out: null,                      tier: 0 },
+  contradiction:      { brief: '19-contradiction.md',    out: '21-11-contradictions.md', tier: 0 },
+  'evidence-audit':   { brief: '20-evidence-audit.md',   out: null,                      tier: 0 },
+  ...Object.fromEntries(WAVE_A.map(a => [a.label, { brief: a.brief, out: a.out, tier: 1 }])),
+  ...Object.fromEntries(WAVE_B.map(b => [b.label, { brief: b.brief, out: b.out, tier: 1 }])),
+  vertical:           { brief: '17-vertical.md',         out: '21-vertical-annex.md',    tier: 1 },
+  opportunity:        { brief: '21-opportunity.md',      out: '18-opportunity.md',       tier: 2 },
+  'account-strategy': { brief: '22-account-strategy.md', out: '19-account-strategy.md',  tier: 3 },
+  playbook:           { brief: '23-playbook.md',         out: '20-playbook.md',          tier: 3 },
+  'exec-brief':       { brief: '24-exec-brief.md',       out: '01-exec-brief.md',        tier: 4 },
+  methodology:        { brief: '25-methodology.md',      out: '02-methodology.md',       tier: 4 },
 }
+
+// Only agents that actually ran can be handed work: their section and fragment exist to revise.
+const ranLabels = new Set([
+  'preflight', ...(backbone ? ['backbone'] : []), ...aLabels, ...bLabels,
+  'contradiction', 'evidence-audit', 'opportunity', 'account-strategy', 'playbook',
+  'exec-brief', 'methodology',
+])
+const ELIGIBLE_OWNERS = Object.keys(OWNERS).filter(l => ranLabels.has(l))
+
+const ROUTER_SCHEMA = {
+  type: 'object',
+  required: ['orders', 'unroutable', 'digest'],
+  properties: {
+    orders: {
+      type: 'array',
+      items: {
+        type: 'object',
+        required: ['owner', 'findings'],
+        properties: {
+          owner:        { enum: ELIGIBLE_OWNERS },
+          fetch_budget: { type: 'integer', minimum: 0, maximum: 5 },
+          findings: {
+            type: 'array',
+            items: {
+              type: 'object',
+              required: ['finding_id', 'check', 'severity', 'locations', 'defect', 'required_outcome'],
+              properties: {
+                finding_id:         { type: 'string' },
+                check:              { type: 'string' },
+                severity:           { enum: ['BLOCKER', 'MAJOR'] },
+                locations:          { type: 'array', items: { type: 'string' } },
+                defect:             { type: 'string' },
+                evidence_on_record: { type: 'string' },
+                required_outcome:   { type: 'string' },
+              },
+            },
+          },
+        },
+      },
+    },
+    unroutable: {
+      type: 'array',
+      items: {
+        type: 'object',
+        required: ['finding_id', 'reason'],
+        properties: { finding_id: { type: 'string' }, reason: { type: 'string' } },
+      },
+    },
+    digest: { type: 'string' },
+  },
+}
+
+function renderOrder(order) {
+  return order.findings.map(f => `[${f.finding_id}] ${f.check} ${f.severity}
+  Where:            ${(f.locations || []).join('; ')}
+  Defect:           ${f.defect}
+  On the record:    ${f.evidence_on_record || '(see the verification report)'}
+  Required outcome: ${f.required_outcome}`).join('\n\n')
+}
+
+let ver = ver0
+const remediationRounds = []
+
+for (let round = 1; round <= REMEDIATION_ROUNDS && ver && ver.blockers > 0; round++) {
+  phase('P7R Remediation')
+  const before = { result: ver.result, blockers: ver.blockers, majors: ver.majors, minors: ver.minors, eqi: ver.eqi }
+  log(`P7R round ${round}: ${ver.blockers} BLOCKER(s) — routing findings to their owning agents`)
+
+  const routing = await agent(
+    build('26a-remediation-router.md', 'remediation-router', `${CTX0}
+
+Verification (pass ${round - 1}): ${ver.result} · ${ver.blockers}B/${ver.majors}M/${ver.minors}m
+${(ver.disclosed_failures || []).length ? `Disclosed failures:\n- ${ver.disclosed_failures.join('\n- ')}` : ''}`,
+      `Remediation round ${round} of at most ${REMEDIATION_ROUNDS}.
+
+FIRST copy ${RUN_DIR}/qa/verification-report.json and ${RUN_DIR}/qa/verification-report.md to
+${RUN_DIR}/qa/verification-report.r${round - 1}.json and .r${round - 1}.md — the re-verification
+overwrites the originals, and the before/after comparison is built from these copies.
+
+Then read the report, ${RUN_DIR}/sections/21-8-verification.md, ${RUN_DIR}/state/state.json and
+${H}/prompts/id-allocation.md, and route every BLOCKER to the agent(s) that OWN the defective text
+or record. Eligible owners for this run: ${ELIGIBLE_OWNERS.join(', ')}.
+
+Write ${RUN_DIR}/qa/remediation-orders.r${round}.json (your structured return, verbatim) and
+${RUN_DIR}/state/fragments/remediation-router.json. You edit no section and mint nothing.`),
+    { label: `remediation-router-r${round}`, phase: 'P7R Remediation', schema: ROUTER_SCHEMA }
+  )
+
+  const routed = routing?.orders || []
+  const orders = routed.filter(o => OWNERS[o.owner] && ranLabels.has(o.owner) && (o.findings || []).length)
+  for (const o of routed.filter(x => !orders.includes(x))) {
+    log(`⚠ P7R dropped an order for "${o.owner}": not an eligible owner in this run, or no findings`)
+  }
+  if (!routing) {
+    log(`⚠ P7R round ${round}: router returned nothing — BLOCKERs stay disclosed, not remediated`)
+    remediationRounds.push({ round, before, after: null, owners: [], unroutable: [], note: 'router returned nothing' })
+    break
+  }
+  for (const u of routing.unroutable || []) log(`ℹ P7R unroutable ${u.finding_id}: ${u.reason}`)
+  if (!orders.length) {
+    log(`P7R round ${round}: no routable findings — nothing an owner can fix by rewriting`)
+    remediationRounds.push({ round, before, after: null, owners: [], unroutable: routing.unroutable || [], note: 'no routable findings' })
+    break
+  }
+
+  // Cascade. §18-§20 and §1-§2 restate values the body owns, so once a register or body owner
+  // rewrites, every synthesis section downstream of it is stale even though no finding names it —
+  // the first proof run showed exactly that: §8 and §4 fixed, §18, §19 and §1 still asserting the
+  // pre-fix values, and re-verification raising new BLOCKERs against them. Every synthesis owner
+  // in a tier below the earliest routed one is therefore re-synced, with or without a finding.
+  const minTier = Math.min(...orders.map(o => OWNERS[o.owner].tier))
+  const revised = orders.map(o => o.owner).sort((a, b) => OWNERS[a].tier - OWNERS[b].tier)
+  for (const label of ELIGIBLE_OWNERS) {
+    const tier = OWNERS[label].tier
+    if (tier < 2 || tier <= minTier) continue
+    const upstream = revised.filter(r => OWNERS[r].tier < tier)
+    const existing = orders.find(o => o.owner === label)
+    if (existing) existing.resync = upstream
+    else orders.push({ owner: label, findings: [], resync: upstream })
+  }
+
+  const renderResync = order => `== RE-SYNC (no finding names your text; upstream text changed) ==
+These owners revised their files earlier in this round: ${order.resync.join(', ')}.
+Read each one's \`remediation_log\` in ${RUN_DIR}/state/fragments/<owner>.json and the re-merged
+${RUN_DIR}/state/state.json. Wherever your section restates, scores, counts or builds on a claim,
+value, status, X-nnnn or rationale those logs changed, re-derive that passage from the corrected
+record — the qualifier, the date, the score, the severity. A passage that rests on refuted evidence
+is withdrawn or restated at the evidence's real status. Change nothing those logs did not touch.
+Log each re-derived passage in \`remediation_log\` with finding_id "RESYNC-r${round}".`
+
+  const ownerTask = order => () => {
+    const o = OWNERS[order.owner]
+    const n = order.findings.length
+    const parts = [
+      n ? `== YOUR WORK ORDER (${n} finding${n === 1 ? '' : 's'}) ==\n${renderOrder(order)}` : '',
+      order.resync ? renderResync(order) : '',
+    ].filter(Boolean)
+    return agent(
+      build(o.brief, order.owner, `${CTX0}
+
+${n ? 'Verification found defects in text or records YOU own.' : 'Owners upstream of you have corrected text your section builds on.'} This is a remediation pass, not a fresh
+write: everything you produced earlier is on disk and stays unless an order below says otherwise.`,
+        `REMEDIATION PASS — round ${round}. Read ${H}/prompts/briefs/26b-remediation-pass.md NOW, after
+your brief. It governs this pass and wins over your brief where they conflict; the constitution
+still wins over both.
+
+Your files: ${o.out ? `${RUN_DIR}/sections/${o.out} and ` : ''}${RUN_DIR}/state/fragments/${order.owner}.json.
+Fetch budget for this pass: ${order.fetch_budget || 0} — only to re-open a source already in the
+manifest. Anything that needs new research is a gap, not a fix.
+
+${parts.join('\n\n')}
+
+Return at most 100 words: what you changed, what you declined and why.`),
+      { label: `${order.owner}-r${round}`, phase: 'P7R Remediation' }
+    )
+  }
+
+  const byTier = [0, 1, 2, 3, 4].map(t => orders.filter(o => OWNERS[o.owner].tier === t)).filter(g => g.length)
+  const ownerResults = []
+  for (let i = 0; i < byTier.length; i++) {
+    const group = byTier[i]
+    const outs = await parallel(group.map(ownerTask))
+    group.forEach((o, j) => ownerResults.push({ owner: o.owner, findings: o.findings.map(f => f.finding_id), resync: Boolean(o.resync), returned: Boolean(outs[j]), digest: outs[j] || null }))
+    const missing = group.filter((_, j) => !outs[j]).map(o => o.owner)
+    log(`P7R round ${round}: ${group.map(o => o.owner).join(', ')} — ${group.length - missing.length}/${group.length} returned${missing.length ? ` — NO RETURN FROM: ${missing.join(', ')}` : ''}`)
+
+    // Synthesis owners read claim status from state.json, not from fragments. Once the last
+    // register/body group has run and synthesis work remains, re-merge — once, so the label stays
+    // unique and a resumed run cannot replay a stale merge from cache.
+    const bodyJustRan = OWNERS[group[0].owner].tier <= 1
+    const nextIsSynthesis = i + 1 < byTier.length && OWNERS[byTier[i + 1][0].owner].tier >= 2
+    if (bodyJustRan && nextIsSynthesis) {
+      const mid = await remerge(`R${round}a`, CTX0, 'the synthesis owners in this remediation round', 'P7R Remediation')
+      log(`State re-merged mid-remediation: ${mid || '(no return)'}`)
+    }
+  }
+
+  // Both prompts name every owner that ran, so they change whenever the round's owner set does:
+  // a resumed run must not replay a merge or a verdict taken before an owner it now includes.
+  const ranThisRound = ownerResults.map(r => `${r.owner}${r.findings.length ? '' : ' (re-sync)'}`).join(', ')
+  const rem = await remerge(`R${round}`, `${CTX0}
+
+Owners revised in remediation round ${round}: ${ranThisRound}.`, '`verification` (re-verification)', 'P7R Remediation')
+  log(`State re-merged before re-verification: ${rem || '(no return)'}`)
+
+  const reVer = await agent(
+    build('26-verification.md', 'verification', verificationUpstream(`R${round}`,
+      `RE-VERIFICATION, round ${round}. Owning agents have just revised their own sections in response
+to the previous pass; their work orders are in ${RUN_DIR}/qa/remediation-orders.r${round}.json and
+each owner's \`remediation_log\` is in its fragment. Owners revised this round: ${ranThisRound}.
+A "(re-sync)" owner had no finding of its own and re-derived its text from the corrected body.
+The previous report is preserved at ${RUN_DIR}/qa/verification-report.r${round - 1}.json.
+
+Run EVERY check again from scratch — do not inherit the previous verdicts. A rewrite can introduce a
+defect as easily as remove one, and an owner that declined an order must have said why. Add a
+"Remediation round ${round}" subsection to §21.8: per previous finding, fixed / partly fixed / not
+fixed / regressed, and every NEW finding the rewrites introduced.`), VERIFICATION_EXTRA),
+    { label: `verification-r${round}`, phase: 'P7R Remediation', schema: VERIFICATION_SCHEMA }
+  )
+  logVerification(reVer, ` (round ${round})`)
+
+  const after = reVer ? { result: reVer.result, blockers: reVer.blockers, majors: reVer.majors, minors: reVer.minors, eqi: reVer.eqi } : null
+  remediationRounds.push({ round, before, after, owners: ownerResults, unroutable: routing.unroutable || [] })
+  if (!reVer) {
+    log('⚠ Re-verification returned nothing — keeping the previous verification result, which predates the rewrites')
+    break
+  }
+  log(`P7R round ${round}: BLOCKERs ${before.blockers} → ${after.blockers} · MAJORs ${before.majors} → ${after.majors} · EQI ${before.eqi} → ${after.eqi}`)
+  ver = reVer
+}
+
+if (ver && ver.blockers > 0) log(`⚠ ${ver.blockers} BLOCKER(s) unremediated — see ${RUN_DIR}/qa/verification-report.md before any use`)
 
 // ---------------------------------------------------------------------------
 // P8 — Appendices, then assembly.
@@ -835,7 +1093,9 @@ Opt subsections are honest about being empty. An absent heading is not.`),
 )
 
 const remergeP7 = await remerge('P7', `${CTX0}
-
+${remediationRounds.length ? `
+Verification after P7R: ${ver ? `${ver.result} · ${ver.blockers}B/${ver.majors}M/${ver.minors}m · EQI ${ver.eqi}` : 'DID NOT COMPLETE'}
+` : ''}
 appendices: ${appOut || '(no return)'}`, '`assembly`', 'P8 Assemble')
 log(`State re-merged before assembly: ${remergeP7 || '(no return)'}`)
 
@@ -844,6 +1104,7 @@ const finalOut = await agent(
 
 Verification: ${ver ? `${ver.result} · Overall Confidence ${ver.overall_confidence} · EQI ${ver.eqi} · ${ver.blockers}B/${ver.majors}M/${ver.minors}m` : 'DID NOT COMPLETE'}
 ${ver && (ver.disclosed_failures || []).length ? `Disclosed failures: ${ver.disclosed_failures.join('; ')}` : ''}
+${remediationRounds.length ? `Owner remediation (P7R): ${remediationRounds.map(r => `round ${r.round} ${r.before.blockers}B → ${r.after ? `${r.after.blockers}B` : 'not re-verified'}`).join('; ')}. The verification above is the post-remediation pass; §21.8 carries the round-by-round record.` : ''}
 exec-brief:  ${execOut || '(no return)'}
 methodology: ${methOut || '(no return)'}
 appendices:  ${appOut  || '(no return)'}`,
@@ -894,5 +1155,7 @@ return {
   wave_b_launched: bLabels.length,
   wave_b_returned: bOut.filter(Boolean).length,
   verification: ver || null,
+  verification_initial: remediationRounds.length ? ver0 : undefined,
+  remediation: remediationRounds,
   assembly: finalOut || null,
 }

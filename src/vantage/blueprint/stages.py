@@ -4,12 +4,16 @@ Mirrors ``harness/workflows/vantage-v3.workflow.mjs`` and ``prompts/id-allocatio
 programmatic backends (api/agent-sdk/langgraph/adk/crewai) run the identical pipeline the Claude
 Code Workflow backend runs.
 
-Phase mapping. ``aid-20260829.md`` specifies eight sequential phases. Phases 2-6 there are a
+Phase mapping. ``vantage-20260829.md`` specifies eight sequential phases. Phases 2-6 there are a
 *dependency* ordering, not a concurrency constraint, so the harness collapses them into two
 research waves: Wave A holds every body section with no intra-body dependency (ten agents), Wave B
 holds the five that block on a Wave A output. Every phase-boundary persistence obligation is still
 honoured at each wave end. Reconciliation runs before synthesis rather than at phase 8, because a
 claim refuted after §18-§20 are written costs a rebuild of all three. See ``ARCHITECTURE.md``.
+
+One known divergence: the workflow's P7R step (owner remediation after verification, briefs 26a
+and 26b) is not mirrored here. ``remediation-router`` is deliberately absent from ``AGENTS``
+because this roster is what the programmatic orchestrator runs, and it does not run P7R yet.
 """
 
 from __future__ import annotations

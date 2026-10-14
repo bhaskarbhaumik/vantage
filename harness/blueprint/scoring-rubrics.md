@@ -4,7 +4,7 @@
 > V12b failure. Reproduced verbatim into §21.8, so the dossier documents whatever rubric was
 > actually in force for that run.
 >
-> **These are internal decision aids derived from outside-in public evidence. They are not
+> **These are internal decision-support tools derived from outside-in public evidence. They are not
 > measurements of the client and must never be presented to the client.**
 
 ## Universal rules

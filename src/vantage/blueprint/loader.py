@@ -18,23 +18,10 @@ class Blueprint:
             raise FileNotFoundError(f"harness dir not found: {self.dir}")
         self._cache: dict[str, str] = {}
 
-    # ---- filename resolution --------------------------------------------------
-    def _resolve(self, *candidates: str) -> str:
-        """First candidate that exists on disk, else the first (so the error names what we want).
-
-        The Vantage rename moved three harness files. Keeping the pre-rename names as fallbacks
-        is what lets ``scripts/backout-vantage-v1-to-aid.sh`` reinstate the old report by swapping
-        the harness directory alone — no patching of engine source.
-        """
-        for rel in candidates:
-            if (self.dir / rel).exists():
-                return rel
-        return candidates[0]
-
     @property
     def dossier_suffix(self) -> str:
-        """``<slug>-<suffix>.md`` — follows whichever harness is installed."""
-        return "vantage" if (self.dir / "blueprint" / "vantage-blueprint-v3.md").exists() else "aid"
+        """``<slug>-<suffix>.md`` — the dossier file name suffix."""
+        return "vantage"
 
     # ---- raw file access (instance-cached) -----------------------------------
     def _read(self, rel: str) -> str:
@@ -49,8 +36,7 @@ class Blueprint:
 
     # ---- named docs -----------------------------------------------------------
     def system_prompt(self) -> str:
-        return self._read(self._resolve("prompts/system-vantage-analyst.md",
-                                        "prompts/system-aid-analyst.md"))
+        return self._read("prompts/system-vantage-analyst.md")
 
     def common(self) -> str:
         return self._read("prompts/briefs/_common.md")
@@ -62,8 +48,7 @@ class Blueprint:
         return self._read("prompts/id-allocation.md")
 
     def blueprint_doc(self) -> str:
-        return self._read(self._resolve("blueprint/vantage-blueprint-v3.md",
-                                        "blueprint/aid-blueprint-v3.md"))
+        return self._read("blueprint/vantage-blueprint-v3.md")
 
     def evidence_policy(self) -> str:
         return self._read("blueprint/evidence-policy.md")
@@ -90,8 +75,7 @@ class Blueprint:
         return json.loads(self._read("state/state.schema.json"))
 
     def workflow_path(self) -> Path:
-        return self.dir / self._resolve("workflows/vantage-v3.workflow.mjs",
-                                        "workflows/aid-v3.workflow.mjs")
+        return self.dir / "workflows/vantage-v3.workflow.mjs"
 
     # ---- convenience bundles --------------------------------------------------
     def reference_docs(self) -> dict[str, str]:

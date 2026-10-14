@@ -4,7 +4,7 @@
 
 A Claude Code agent harness that produces a Vantage dossier (*Verified Account Navigator: Targeting, Analysis & GTM Engine*) as Markdown. It runs
 **29 agents across 12 steps**, with up to **ten working concurrently**, implementing
-`aid-20260829.md` (AID Prompt Package v3.0.0). It runs on your Claude subscription through the
+`vantage-20260829.md` (Vantage Prompt Package v3.0.0). It runs on your Claude subscription through the
 Workflow tool — **no Anthropic API key, no SDK, no billing integration** — and the same agent
 roster runs through five programmatic backends when you want one.
 
@@ -16,10 +16,9 @@ re-reading the dossier.
 
 | Artefact | Role here |
 |---|---|
-| `aid-20260829.md` v3.0.0 | **The source of truth.** Its SYSTEM block is the constitution; its 22-section structure is the blueprint; its Verification Pass is the gate. |
-| `aid-tools-20260829.md` v2.0.0 | The tooling catalog, condensed into `blueprint/tooling-map.md` as a section→evidence map. |
-| `aid-ug-20260829.md` v1.0.0 | Access and key inventory. Path B (this harness) is the zero-config default it recommends. |
-| `harness/.superseded-v2/` | The v2.1/v2.2 generation, frozen. Nothing reads from it; safe to delete once v3 is committed. |
+| `vantage-20260829.md` v3.0.0 | **The source of truth.** Its SYSTEM block is the constitution; its 22-section structure is the blueprint; its Verification Pass is the gate. |
+| `vantage-tools-20260829.md` v2.0.0 | The tooling catalog, condensed into `blueprint/tooling-map.md` as a section→evidence map. |
+| `vantage-ug-20260829.md` v1.0.0 | Access and key inventory. Path B (this harness) is the zero-config default it recommends. |
 
 ## The execution graph
 
@@ -49,6 +48,9 @@ P5b account-strategy     playbook                      (2 agents, concurrent)
 P6  exec-brief           methodology                   (2 agents — §1 derived last, §2)
       ▼
 P7  verification                                       (1 agent, FRESH CONTEXT — V1..V12)
+      ▼  only if BLOCKERs, up to remediation_rounds (default 1)
+P7R remediation-router → owners rewrite their own      (registers → body → §18 → §19/§20 → §1/§2,
+    sections → re-merge → verification (fresh)          each tier concurrent; see decision 7)
       ▼
 P8a appendices                                         (§21.2–21.7)
 P8b assembly                                           (deterministic — §21.1/9/10/11/12 + final doc)
@@ -59,7 +61,7 @@ entirely, and drives §1 from that.
 
 ### Phase mapping — a deliberate deviation, and why
 
-`aid-20260829.md` specifies eight sequential phases. This harness maps them onto twelve steps:
+`vantage-20260829.md` specifies eight sequential phases. This harness maps them onto twelve steps:
 
 | Spec phase | Harness step |
 |---|---|
@@ -86,7 +88,7 @@ JSON. Running §14 after §10 buys nothing, and costs four sequential agent turn
 **2. Reconciliation runs at P4, before synthesis, rather than inside phase 8.** This is the
 single most important scheduling decision in the design — see below.
 
-## Six design decisions, and why
+## Seven design decisions, and why
 
 ### 1. Agents write to disk; only ≤200-word digests flow through the orchestrator
 
@@ -156,6 +158,28 @@ Likewise `source-merge` (P4a) and `assembly` (P8b) run as Python in the programm
 because collation must be exact and reproducible. The Workflow backend performs the same work with
 an agent against the same brief and the same standard.
 
+### 7. Verification findings go back to the owners, not into a footnote
+
+Verification may downgrade a claim or add a label; it may not rewrite another agent's analysis,
+because a verifier that rewrites is no longer independent of what it checks. Before P7R that rule
+left every prose defect *annotated*: across the first runs, refuted and weakened claims went on
+being asserted in §3–§17, and qualifiers lost in the body stayed lost in §18–§20 and §1, while the
+title block read PASS WITH DISCLOSURES.
+
+P7R closes the loop without breaking the rule. `remediation-router` (brief 26a) turns the report
+into work orders for the agents that own the defective text — one order per hop of a V5a chain —
+and each owner revises only its own section and fragment under brief 26b. Owners run in dependency
+order, because a fix to §18 made before its §8 origin is fixed simply restates the defect. Once a
+register or body owner rewrites, every synthesis owner downstream of it is re-dispatched to re-sync
+even when no finding names its text: the first proof run fixed §4 and §8 and left §18, §19
+and §1 restating the pre-fix values, which the re-verifier then raised as new BLOCKERs. A fresh
+verifier then re-runs **every** check, since a rewrite can introduce a defect as easily as remove
+one, and §21.8 records the round: fixed, partly fixed, not fixed, regressed, declined.
+
+The loop is for rewriting, not research. A finding that needs a document nobody retrieved is
+unroutable and stays disclosed with the topic named for an extended-budget re-run. The workflow
+backend implements P7R; the programmatic backends do not yet.
+
 ## What parallelism costs
 
 Five failure modes exist here that a sequential pipeline cannot produce. All five are checked in
@@ -192,7 +216,7 @@ unlock those fields on a re-run.
 - **No rendering.** Markdown only. `chart-data` / `figure-spec` blocks carry enough intermediate
   representation for a downstream renderer, which validates them against schema v1 after the run.
 - **No API keys on the default path.** The Workflow backend runs on a Claude subscription.
-- **No client-facing output.** Every scorecard carries the "decision aid, not a measurement, must
+- **No client-facing output.** Every scorecard carries the "decision-support tool, not a measurement, must
   not be presented to the client" framing.
 - **No unbounded research.** Every topic has stopping criteria, every section has a coverage record,
   and §21.12 distinguishes *stopped on diminishing returns* from *stopped on budget*.

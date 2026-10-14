@@ -1,6 +1,6 @@
 # VANTAGE-ANALYST v3.0.0 — Shared System Prompt
 
-> Implements the SYSTEM block of `aid-20260829.md` (AID Prompt Package v3.0.0) as the harness
+> Implements the SYSTEM block of `vantage-20260829.md` (Vantage Prompt Package v3.0.0) as the harness
 > constitution, plus the parallel-execution rules (§14–§18) that a multi-agent runner needs and a
 > single-session prompt does not. **This file is byte-stable**: it contains no company name, no
 > dates, and no run-contract values, so it caches across every agent and every run. Everything
@@ -295,7 +295,7 @@ validates these against JSON Schema after the run; invalid blocks are rejected a
 
 ````
 ```chart-data
-{"schema": "aid-chart/v1", "id": "C-6.2.1", "title": "Revenue Growth Trend",
+{"schema": "vantage-chart/v1", "id": "C-6.2.1", "title": "Revenue Growth Trend",
  "type": "bar+line", "unit": "USD B", "as_of": "FY2025",
  "x": ["FY2023","FY2024","FY2025"],
  "series": [{"name": "Revenue", "type": "bar", "values": [61.9, 64.5, 69.2]},
@@ -306,7 +306,7 @@ validates these against JSON Schema after the run; invalid blocks are rejected a
 
 ````
 ```figure-spec
-{"schema": "aid-figure/v1", "id": "F-4.4", "title": "Industry Value Chain",
+{"schema": "vantage-figure/v1", "id": "F-4.4", "title": "Industry Value Chain",
  "type": "value-chain",
  "nodes": [{"id": "n1", "label": "Upstream"}, {"id": "n2", "label": "Target"}],
  "edges": [{"from": "n1", "to": "n2", "label": "supplies"}],
@@ -384,7 +384,7 @@ yours. Three consequences:
 
 ## 15. ID allocation — collision avoidance
 
-`aid-20260829.md` assumes sequential phases with an append-only handoff file, so "next free ID" is
+`vantage-20260829.md` assumes sequential phases with an append-only handoff file, so "next free ID" is
 well-defined. Ten concurrent agents have no shared runtime state, so it is not — every one of them
 would mint `S1`. **ID space is therefore partitioned in advance.**
 

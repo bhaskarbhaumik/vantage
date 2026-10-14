@@ -1,8 +1,8 @@
 # Azure — Container Apps Job
 
 ```bash
-# 1. Build + create the job (or: vantage-engine deploy --target azure)
-uv run vantage-engine deploy --target azure
+# 1. Build + create the job (or: vantage deploy --target azure)
+uv run vantage deploy --target azure
 
 # 2. Start a dossier run
 az containerapp job start --name vantage --resource-group "$AZURE_RESOURCE_GROUP" \

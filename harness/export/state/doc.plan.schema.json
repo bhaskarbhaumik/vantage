@@ -1,0 +1,281 @@
+{
+  "$defs": {
+    "Callout": {
+      "description": "A Markdown blockquote: verdicts, errata, warnings and disclaimers.",
+      "properties": {
+        "kind": {
+          "const": "callout",
+          "default": "callout",
+          "title": "Kind",
+          "type": "string"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        },
+        "tone": {
+          "default": "note",
+          "enum": [
+            "note",
+            "verdict",
+            "warning",
+            "disclaimer"
+          ],
+          "title": "Tone",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "title": "Callout",
+      "type": "object"
+    },
+    "ChartSpec": {
+      "description": "A chart the renderer generates. Data is supplied by the dossier, never invented.",
+      "properties": {
+        "form": {
+          "enum": [
+            "bar",
+            "hbar",
+            "line",
+            "grouped-bar",
+            "stacked-bar",
+            "scatter",
+            "donut",
+            "combo",
+            "waterfall"
+          ],
+          "title": "Form",
+          "type": "string"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "categories": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Categories",
+          "type": "array"
+        },
+        "series": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Series",
+          "type": "array"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unit"
+        },
+        "note": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Note"
+        },
+        "y_label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Y Label"
+        },
+        "secondary_unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Secondary Unit"
+        },
+        "id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Id"
+        }
+      },
+      "required": [
+        "form",
+        "title",
+        "categories"
+      ],
+      "title": "ChartSpec",
+      "type": "object"
+    },
+    "DocSectionPlan": {
+      "properties": {
+        "section_id": {
+          "title": "Section Id",
+          "type": "string"
+        },
+        "treatment": {
+          "$ref": "#/$defs/DocTreatment",
+          "default": "verbatim"
+        },
+        "heading_override": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Heading Override"
+        },
+        "summary": {
+          "default": "",
+          "title": "Summary",
+          "type": "string"
+        },
+        "lead": {
+          "default": "",
+          "title": "Lead",
+          "type": "string"
+        },
+        "callouts": {
+          "items": {
+            "$ref": "#/$defs/Callout"
+          },
+          "title": "Callouts",
+          "type": "array"
+        },
+        "charts": {
+          "items": {
+            "$ref": "#/$defs/ChartSpec"
+          },
+          "title": "Charts",
+          "type": "array"
+        },
+        "page_break_before": {
+          "default": false,
+          "title": "Page Break Before",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "section_id"
+      ],
+      "title": "DocSectionPlan",
+      "type": "object"
+    },
+    "DocTreatment": {
+      "enum": [
+        "verbatim",
+        "condense",
+        "summary",
+        "omit"
+      ],
+      "title": "DocTreatment",
+      "type": "string"
+    }
+  },
+  "properties": {
+    "client": {
+      "title": "Client",
+      "type": "string"
+    },
+    "title": {
+      "title": "Title",
+      "type": "string"
+    },
+    "subtitle": {
+      "default": "Vantage dossier",
+      "title": "Subtitle",
+      "type": "string"
+    },
+    "as_of": {
+      "default": "",
+      "title": "As Of",
+      "type": "string"
+    },
+    "abstract": {
+      "default": "",
+      "title": "Abstract",
+      "type": "string"
+    },
+    "author": {
+      "default": "",
+      "title": "Author",
+      "type": "string"
+    },
+    "author_org": {
+      "default": "",
+      "title": "Author Org",
+      "type": "string"
+    },
+    "author_address": {
+      "default": "",
+      "title": "Author Address",
+      "type": "string"
+    },
+    "sections": {
+      "items": {
+        "$ref": "#/$defs/DocSectionPlan"
+      },
+      "title": "Sections",
+      "type": "array"
+    },
+    "appendix_policy": {
+      "default": "selected",
+      "enum": [
+        "all",
+        "selected",
+        "none"
+      ],
+      "title": "Appendix Policy",
+      "type": "string"
+    },
+    "appendices": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Appendices",
+      "type": "array"
+    }
+  },
+  "required": [
+    "client",
+    "title"
+  ],
+  "title": "DocPlan",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Vantage export DocPlan"
+}
