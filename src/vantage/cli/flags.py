@@ -111,7 +111,7 @@ class FlagSpec:
     @property
     def env_vars(self) -> list[str]:
         legacy = LEGACY_ENV.get(self.dotted)
-        return [self.envvar] + ([legacy] if legacy else [])
+        return [self.envvar] + ([legacy] if legacy and legacy != self.envvar else [])
 
     @property
     def type_label(self) -> str:

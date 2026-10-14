@@ -9,7 +9,7 @@ through [SECURITY.md](SECURITY.md), never a public issue.
 ## Development setup
 
 Requirements: [uv](https://docs.astral.sh/uv/) (it installs the pinned Python 3.14) and
-Node.js 20 or newer.
+Node.js 18.19 or newer (CI tests 20 and 22).
 
 ```bash
 git clone https://github.com/bhaskarbhaumik/vantage.git

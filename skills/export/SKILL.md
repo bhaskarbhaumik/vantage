@@ -47,7 +47,7 @@ uv run --project "$VANTAGE_REPO" python -m vantage.export inspect "<run dir>" --
 | Param | Flag | Default (`export.*` in `~/.config/vantage/default.json`) |
 |---|---|---|
 | Formats | `--format` (repeatable) | `pptx docx pdf html` — pdf implies docx |
-| Depth | `--depth` | `standard` (`exec` ≈ 16 slides · `standard` ≈ 30 · `full` = everything) |
+| Depth | `--depth` | `standard` (`exec` ≈ 18 slides · `standard` ≈ 31 · `full` = everything) |
 | HTML shape | `--site-mode` | `microsite` (or `deck`) |
 | Authoring | `--authoring` | `deterministic` (or `agents`) |
 | Output | `--out` | `<run dir>/exports` |

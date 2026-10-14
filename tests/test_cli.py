@@ -510,3 +510,21 @@ def test_completion_readme_lists_every_committed_script():
     for prog in C.PROGS:
         for shell in C.SHELLS:
             assert C.committed_name(shell, prog) in readme
+
+
+def test_ascii_mode_output_is_strictly_seven_bit():
+    from vantage.cli.ui import Ui
+
+    ui = Ui().configure(icons="ascii", color="never")
+    buf = []
+    ui.err.file._stream = type("S", (), {"write": lambda self, t: buf.append(t),
+                                         "flush": lambda self: None,
+                                         "isatty": lambda self: False})()
+    from rich.table import Table
+
+    t = Table("group", "detail")
+    t.add_row("engine", "Vantage 0.2.0 · harness 3.0.0 — ok ✓ §21.8")
+    ui.print(t)
+    ui.ok("done → next")
+    out = "".join(buf)
+    assert out and out.isascii(), out

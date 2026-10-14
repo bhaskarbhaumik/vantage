@@ -9,8 +9,8 @@
    "tier": "FULL_ANNEX",
    "mtime": 1760450500.0,
    "verification": {
-    "result": "PASS WITH FINDINGS",
-    "overall_confidence": "Moderate",
+    "result": "PASS WITH DISCLOSURES",
+    "overall_confidence": "Adequate",
     "eqi": 71,
     "blockers": 1,
     "majors": 5,
@@ -59,7 +59,7 @@
    "mtime": 1753000000.0,
    "verification": {
     "result": "PASS",
-    "overall_confidence": "High",
+    "overall_confidence": "Strong",
     "eqi": 88,
     "blockers": 0,
     "majors": 1,

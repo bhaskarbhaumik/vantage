@@ -31,5 +31,5 @@ EXPOSE 8080
 
 # Service by default; Cloud Run Jobs / ACA Jobs / Fargate tasks override the args, e.g.:
 #   ["run","--client","ACME","--slug","acme-2026-08","--backend","api"]
-ENTRYPOINT ["vantage-engine"]
+ENTRYPOINT ["vantage"]
 CMD ["serve"]

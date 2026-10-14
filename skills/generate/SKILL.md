@@ -60,7 +60,7 @@ Required: the **client legal name**. Ask only if it is missing; infer everything
 | Pursuing-organization account context | `--account-context` | `NONE` |
 | Known relationship | `--relationship` | `NONE` |
 | Pursuit objectives | `--objectives` | `NONE` |
-| Owner-remediation rounds (P7R) | `--remediation-rounds` | from config |
+| Owner-remediation rounds (P7R) | `--remediation-rounds` | `1` (`0` disables; workflow backend only) |
 
 Every config option is also a flag, and `--set <dotted.key>=<value>` overrides any key for one
 run. `uv run --project "$VANTAGE_REPO" vantage run --help` lists them all.

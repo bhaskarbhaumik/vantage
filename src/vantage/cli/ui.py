@@ -10,6 +10,8 @@ invocation from the effective ``ui`` config section (``--icons``, ``--ascii``, `
 from __future__ import annotations
 
 import os
+import sys
+import unicodedata
 from dataclasses import dataclass, field
 
 from rich.console import Console
@@ -65,7 +67,7 @@ class Ui:
             self.quiet = quiet
         if verbose is not None:
             self.verbose = verbose
-        self.err = _console(self.color, self.theme)
+        self.err = _console(self.color, self.theme, ascii_only=self.icons == "ascii")
         return self
 
     def i(self, name: str) -> str:
@@ -109,8 +111,47 @@ class Ui:
         return f"[{RESULT_STYLE.get(result, 'muted')}]{result}[/]"
 
 
-def _console(color: str, theme: str) -> Console:
+#: Punctuation the CLI prints that has a conventional 7-bit spelling.
+_ASCII_MAP = str.maketrans({
+    "·": ".", "•": "*", "—": "-", "–": "-", "…": "...", "→": "->", "←": "<-", "★": "*",
+    "✓": "v", "✗": "x", "≥": ">=", "≤": "<=", "×": "x", "§": "S", "‘": "'", "’": "'",
+    "“": '"', "”": '"', "±": "+/-",
+})
+
+
+class _AsciiStream:
+    """A stderr wrapper that reports an ASCII encoding and writes only 7-bit text.
+
+    Rich reads ``encoding`` to decide ``ascii_only``, which already swaps table borders, rules and
+    spinners for ASCII ones; this covers the remaining text (separators, dashes, glyphs).
+    """
+
+    encoding = "ascii"
+
+    def __init__(self, stream) -> None:
+        self._stream = stream
+
+    def write(self, text: str) -> int:
+        text = unicodedata.normalize("NFKD", text.translate(_ASCII_MAP))
+        out = text.encode("ascii", "ignore").decode("ascii")
+        self._stream.write(out)
+        return len(text)
+
+    def flush(self) -> None:
+        self._stream.flush()
+
+    def isatty(self) -> bool:
+        return self._stream.isatty()
+
+    def fileno(self) -> int:
+        return self._stream.fileno()
+
+
+def _console(color: str, theme: str, ascii_only: bool = False) -> Console:
     kw: dict = {"stderr": True, "highlight": False, "soft_wrap": True, "theme": Theme(_THEMES.get(theme, _THEMES["dark"]))}
+    if ascii_only:
+        kw.pop("stderr")
+        kw["file"] = _AsciiStream(sys.stderr)
     if color == "never" or (color == "auto" and os.environ.get("NO_COLOR")):
         kw["no_color"] = True
     elif color == "always":

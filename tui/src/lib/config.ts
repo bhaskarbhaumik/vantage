@@ -10,6 +10,8 @@ export type Json = null | boolean | number | string | Json[] | { [k: string]: Js
 export type JsonObject = { [k: string]: Json };
 
 export function userConfigPath(env: NodeJS.ProcessEnv = process.env): string {
+  // `vantage --tui --config X` exports VANTAGE_CONFIG; it wins exactly as it does in the engine.
+  if (env.VANTAGE_CONFIG) return env.VANTAGE_CONFIG.replace(/^~(?=$|\/)/, os.homedir());
   const base = env.XDG_CONFIG_HOME || path.join(os.homedir(), '.config');
   return path.join(base, 'vantage', 'default.json');
 }

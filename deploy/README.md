@@ -1,16 +1,16 @@
 # Deploying the Vantage engine
 
 The engine ships as one portable image (`Dockerfile`) that runs either as a **service**
-(`vantage-engine serve` — `GET /healthz`, `POST /run`) or a **batch job**
-(`vantage-engine run --client … --slug … --backend api`). Dossier runs take minutes, so the
+(`vantage serve` — `GET /healthz`, `POST /run`) or a **batch job**
+(`vantage run --client … --slug … --backend api`). Dossier runs take minutes, so the
 **job/task** model is the default recommendation on every cloud.
 
 Deploy with the built-in helper (prints the exact commands with `--dry-run`):
 
 ```bash
-uv run vantage-engine deploy --target gcp   --dry-run
-uv run vantage-engine deploy --target azure --dry-run
-uv run vantage-engine deploy --target aws   --dry-run
+uv run vantage deploy --target gcp   --dry-run
+uv run vantage deploy --target azure --dry-run
+uv run vantage deploy --target aws   --dry-run
 ```
 
 Drop `--dry-run` to execute (needs the cloud CLI: `gcloud` / `az` / `aws`, authenticated).

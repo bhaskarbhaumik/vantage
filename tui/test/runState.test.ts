@@ -47,7 +47,7 @@ test('recorded run: agents, tokens, warnings and result', () => {
   assert.match(s.warnings[1], /stopped on budget/);
   assert.equal(s.result?.slug, 'example-2026-10');
   assert.equal(s.result?.runDir, '/tmp/vantage/run/example-2026-10');
-  assert.equal(s.result?.verification?.overall_confidence, 'Moderate');
+  assert.equal(s.result?.verification?.overall_confidence, 'Adequate');
   assert.equal(s.result?.verification?.blockers, 1);
   assert.ok(s.logs.some((l) => l.text.includes('P7R round 1')));
 });

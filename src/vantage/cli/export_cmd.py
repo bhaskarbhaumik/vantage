@@ -76,7 +76,7 @@ def _human_bytes(n: int | None) -> str:
 
 def export(
     ctx: typer.Context,
-    target: str = typer.Argument(..., help="A *-vantage.md dossier, a run directory, or a run "
+    target: str = typer.Argument(..., metavar="DOSSIER", help="A *-vantage.md dossier, a run directory, or a run "
                                            "slug under the output dir.",
                                  autocompletion=_complete_target),
     formats: Annotated[list[str] | None, typer.Option(

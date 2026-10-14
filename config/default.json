@@ -1,7 +1,7 @@
 {
   "$schema": "./default.schema.json",
   "version": "2.2",
-  "_note": "Vantage configuration v2.2. Defaults are merged with ~/.config/vantage/default.json, then environment variables and CLI overrides. Run `vantage-engine config migrate` after upgrades. API billing remains opt-in (auth.mode=api-key); credentials belong in environment variables, never here. See docs/configuration.md for backend applicability and model sources.",
+  "_note": "Vantage configuration v2.2. Defaults are merged with ~/.config/vantage/default.json, then environment variables and CLI overrides. Run `vantage config migrate` after upgrades. API billing remains opt-in (auth.mode=api-key); credentials belong in environment variables, never here. See docs/configuration.md for backend applicability and model sources.",
   "engine": {
     "backend": "workflow",
     "available_backends": [

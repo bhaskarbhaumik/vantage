@@ -80,3 +80,9 @@ test('VANTAGE_ENGINE splitting honours quotes', () => {
   assert.deepEqual(splitCommand('uv run --project "/a b/c" vantage'), ['uv', 'run', '--project', '/a b/c', 'vantage']);
   assert.deepEqual(splitCommand("python -m 'vantage.cli'"), ['python', '-m', 'vantage.cli']);
 });
+
+test('VANTAGE_CONFIG overrides the XDG user config path', async () => {
+  const { userConfigPath } = await import('../src/lib/config.js');
+  assert.equal(userConfigPath({ VANTAGE_CONFIG: '/tmp/x.json' }), '/tmp/x.json');
+  assert.equal(userConfigPath({ XDG_CONFIG_HOME: '/xdg' }), '/xdg/vantage/default.json');
+});
