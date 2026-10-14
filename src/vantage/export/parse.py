@@ -351,7 +351,7 @@ def _nest(flat: list[Section]) -> list[Section]:
 
 
 def client_from_title(title: str) -> str:
-    """``"Vantage — Alcoa Corporation"`` → ``"Alcoa Corporation"``."""
+    """``"Vantage — Northwind Ceramics plc"`` → ``"Northwind Ceramics plc"``."""
     for dash in ("—", "–", " - ", ": "):
         if dash in title:
             return title.split(dash, 1)[1].strip()

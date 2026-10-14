@@ -146,7 +146,7 @@ def _today() -> str:
 
 
 def auto_slug(name: str, as_of: str | None = None) -> str:
-    """``Alcoa Corporation`` + 2026-10-14 -> ``alcoa-2026-10``."""
+    """``Acme Industries, Inc.`` + 2026-10-14 -> ``acme-industries-2026-10``."""
     base = _LEGAL_SUFFIX.sub(" ", name)
     base = re.sub(r"[^a-z0-9]+", "-", base.lower()).strip("-") or \
         re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-") or "run"

@@ -171,7 +171,7 @@ into work orders for the agents that own the defective text — one order per ho
 and each owner revises only its own section and fragment under brief 26b. Owners run in dependency
 order, because a fix to §18 made before its §8 origin is fixed simply restates the defect. Once a
 register or body owner rewrites, every synthesis owner downstream of it is re-dispatched to re-sync
-even when no finding names its text: the first Alcoa proof run fixed §4 and §8 and left §18, §19
+even when no finding names its text: the first proof run fixed §4 and §8 and left §18, §19
 and §1 restating the pre-fix values, which the re-verifier then raised as new BLOCKERs. A fresh
 verifier then re-runs **every** check, since a rewrite can introduce a defect as easily as remove
 one, and §21.8 records the round: fixed, partly fixed, not fixed, regressed, declined.

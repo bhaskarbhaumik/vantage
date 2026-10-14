@@ -293,8 +293,11 @@ def test_command_checker_catches_mistakes():
 
 
 # ── names ─────────────────────────────────────────────────────────────────────────────────────
+# The retired product name is assembled from pieces so this guard does not itself contain it.
+_OLD = "a" + "id"
 _RETIRED = re.compile(
-    r"\bAID\b|\baid[-_]|Account Intelligence Dossier|company-aid|\bTCS\b|Tata Consultancy"
+    rf"\b{_OLD.upper()}\b|\b{_OLD}[-_]|Account Intelligence Dossier|company-{_OLD}|\bTCS\b"
+    r"|Tata Consultancy"
     r"|scripts/vantage(?![-_\w])|\bcli/src\b|\bcli/dist\b|vantage-engine run|vantage-engine config"
 )
 

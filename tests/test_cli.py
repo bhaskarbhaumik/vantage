@@ -240,8 +240,8 @@ def test_ask_key_and_auth_alias_become_overrides(monkeypatch, tmp_path):
 
 
 def test_auto_slug():
-    assert cli.auto_slug("Alcoa Corporation", "2026-10-14") == "alcoa-2026-10"
-    assert cli.auto_slug("BHP Group Limited", "2026-10-01") == "bhp-2026-10"
+    assert cli.auto_slug("Acme Industries, Inc.", "2026-10-14") == "acme-industries-2026-10"
+    assert cli.auto_slug("Northwind Ceramics plc", "2026-10-01") == "northwind-ceramics-2026-10"
     assert cli.auto_slug("Inc", "2026-01-01") == "inc-2026-01"
 
 

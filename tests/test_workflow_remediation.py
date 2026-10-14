@@ -174,7 +174,7 @@ def test_orders_for_agents_that_did_not_run_are_dropped_and_logged(tmp_path):
 
 
 def test_body_fixes_cascade_a_resync_to_every_downstream_synthesis_owner(tmp_path):
-    """Alcoa proof run: §4/§8 were fixed but §18/§19/§1 kept the pre-fix values."""
+    """First proof run: §4/§8 were fixed but §18/§19/§1 kept the pre-fix values."""
     res = run(tmp_path, {"verifications": [FAILING, IMPROVED], "router": ROUTER})
     calls = {c["label"]: c["prompt"] for c in res["calls"]}
 

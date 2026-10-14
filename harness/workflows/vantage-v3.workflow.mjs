@@ -961,7 +961,7 @@ ${RUN_DIR}/state/fragments/remediation-router.json. You edit no section and mint
 
   // Cascade. §18-§20 and §1-§2 restate values the body owns, so once a register or body owner
   // rewrites, every synthesis section downstream of it is stale even though no finding names it —
-  // the Alcoa proof run showed exactly that: §8 and §4 fixed, §18, §19 and §1 still asserting the
+  // the first proof run showed exactly that: §8 and §4 fixed, §18, §19 and §1 still asserting the
   // pre-fix values, and re-verification raising new BLOCKERs against them. Every synthesis owner
   // in a tier below the earliest routed one is therefore re-synced, with or without a finding.
   const minTier = Math.min(...orders.map(o => OWNERS[o.owner].tier))

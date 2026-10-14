@@ -85,7 +85,7 @@ export const NewRun: React.FC<{ prefill?: RunPrefill }> = ({ prefill = {} }) => 
 
   const fields: FieldDef[] = [
     { kind: 'section', label: 'Client' },
-    { kind: 'text', id: 'client', label: 'Client legal name', required: true, hint: 'The registered legal name, e.g. "Alcoa Corporation".' },
+    { kind: 'text', id: 'client', label: 'Client legal name', required: true, hint: 'The registered legal name, e.g. "Northwind Ceramics plc".' },
     { kind: 'text', id: 'slug', label: 'Run slug', required: true, hint: 'Run directory name. Follows the client name until you edit it.' },
     { kind: 'text', id: 'commonName', label: 'Common name', placeholder: 'auto' },
     { kind: 'text', id: 'ticker', label: 'Ticker', placeholder: 'auto-detect' },
