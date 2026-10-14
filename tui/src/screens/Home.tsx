@@ -1,13 +1,38 @@
 // Home dashboard: version, auth mode, defaults, recent runs and quick actions.
-import React, { useEffect, useRef } from 'react';
-import { Box } from 'ink';
-import SelectInput from 'ink-select-input';
+import React, { useState } from 'react';
+import { Box, useInput } from 'ink';
 import { useAppCtx, useEngine, type ScreenId } from '../components/context.js';
 import { AuthBadge, ErrorPanel, Field, Icon, Line, Loading, Panel, Txt, useIcon, useUi } from '../components/ui.js';
 import { getPath } from '../lib/config.js';
 import { ago, pad, truncate, vmm } from '../lib/format.js';
 import { bandTone } from '../lib/theme.js';
 import type { RunInfo } from '../lib/engine.js';
+
+// Arrow keys + enter only. A select list that also maps digit keys to items collides with the
+// global 1-8 tab keys: "6" would both open tab 6 and pick the sixth action.
+const QuickActions: React.FC<{
+  items: { label: string; value: ScreenId }[];
+  active: boolean;
+  onSelect: (id: ScreenId) => void;
+}> = ({ items, active, onSelect }) => {
+  const ic = useIcon();
+  const [idx, setIdx] = useState(0);
+  useInput((_input, key) => {
+    if (key.upArrow) setIdx((i) => (i - 1 + items.length) % items.length);
+    else if (key.downArrow) setIdx((i) => (i + 1) % items.length);
+    else if (key.return && items[idx]) onSelect(items[idx].value);
+  }, { isActive: active });
+  return (
+    <Box flexDirection="column">
+      {items.map((it, i) => (
+        <Box key={it.value}>
+          <Txt tone="accent" bold>{i === idx ? `${ic('pointer')} ` : '  '}</Txt>
+          <Txt tone={i === idx ? 'accent' : undefined} bold={i === idx}>{it.label}</Txt>
+        </Box>
+      ))}
+    </Box>
+  );
+};
 
 export const RecentRuns: React.FC<{ runs: RunInfo[]; limit?: number; width: number }> = ({ runs, limit = 6, width }) => {
   const ic = useIcon();
@@ -44,15 +69,6 @@ export const Home: React.FC = () => {
   const version = useEngine(() => ctx.bridge.version());
   const runs = useEngine(() => ctx.bridge.runsList());
   const auth = String(getPath(ctx.localConfig, 'auth.mode') ?? ctx.defaults.authMode);
-  // ink-select-input also selects on digit keys, which are global screen shortcuts here. Defer the
-  // navigation one tick: when a digit already switched screens this component is gone by then.
-  const mounted = useRef(true);
-  useEffect(
-    () => () => {
-      mounted.current = false;
-    },
-    [],
-  );
 
   const items: Item[] = [
     { label: `${ic('newRun')} New dossier`, value: 'run' },
@@ -101,25 +117,7 @@ export const Home: React.FC = () => {
 
   const actions = (
     <Panel title="Quick actions" icon="rocket" minWidth={30}>
-      <SelectInput<ScreenId>
-        items={items}
-        indicatorComponent={({ isSelected }) => (
-          <Txt tone="accent" bold>
-            {isSelected ? `${ic('pointer')} ` : '  '}
-          </Txt>
-        )}
-        itemComponent={({ isSelected, label }) => (
-          <Txt tone={isSelected ? 'accent' : undefined} bold={isSelected}>
-            {label}
-          </Txt>
-        )}
-        isFocused={!ctx.modal}
-        onSelect={(it) => {
-          setTimeout(() => {
-            if (mounted.current) ctx.go(it.value);
-          }, 0);
-        }}
-      />
+      <QuickActions items={items} active={!ctx.modal} onSelect={(id) => ctx.go(id)} />
     </Panel>
   );
 
