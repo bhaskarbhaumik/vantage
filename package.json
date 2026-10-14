@@ -1,6 +1,6 @@
 {
   "name": "vantage",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Ink TUI front-end for the Vantage multi-agent, multi-backend research engine.",
   "type": "module",
   "bin": {

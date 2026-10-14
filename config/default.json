@@ -1,7 +1,7 @@
 {
   "$schema": "./default.schema.json",
-  "version": "2.1",
-  "_note": "Vantage configuration v2.1. Defaults are merged with ~/.config/vantage/default.json, then environment variables and CLI overrides. Run `vantage-engine config migrate` after upgrades. API billing remains opt-in (auth.mode=api-key); credentials belong in environment variables, never here. See docs/configuration.md for backend applicability and model sources.",
+  "version": "2.2",
+  "_note": "Vantage configuration v2.2. Defaults are merged with ~/.config/vantage/default.json, then environment variables and CLI overrides. Run `vantage-engine config migrate` after upgrades. API billing remains opt-in (auth.mode=api-key); credentials belong in environment variables, never here. See docs/configuration.md for backend applicability and model sources.",
   "engine": {
     "backend": "workflow",
     "available_backends": [
@@ -196,5 +196,36 @@
       "md"
     ],
     "keep_state": true
+  },
+  "export": {
+    "formats": [
+      "pptx",
+      "docx",
+      "pdf",
+      "html"
+    ],
+    "depth": "standard",
+    "site_mode": "microsite",
+    "authoring": "deterministic",
+    "out_dir": null,
+    "classification": "Confidential",
+    "brand": null,
+    "client_logo": true,
+    "helpers": {
+      "icons": true,
+      "brand": true,
+      "stock_images": true,
+      "diagrams": "auto",
+      "illustrations": "none",
+      "charts": "matplotlib",
+      "libreoffice_bin": "soffice",
+      "timeout_seconds": 60
+    }
+  },
+  "ui": {
+    "icons": "nerd",
+    "color": "auto",
+    "theme": "dark",
+    "animations": true
   }
 }

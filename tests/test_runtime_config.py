@@ -44,7 +44,7 @@ def test_migration_updates_known_defaults_and_preserves_customizations(path):
     saved_defaults = copy.deepcopy(defaults)
     out, changes = migrate_user_config(user, defaults)
     assert user == original and defaults == saved_defaults
-    assert out["version"] == "2.1"
+    assert out["version"] == "2.2"
     assert out["engine"]["output_dir"] == "~/.cache/vantage/run"
     assert out["models"]["synthesis"]["model"] == "claude-opus-5-5"
     assert out["providers"]["openai"]["default_model"] == "gpt-6.1-sol"
