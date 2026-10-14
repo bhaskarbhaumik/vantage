@@ -1,0 +1,72 @@
+name: Harness / dossier quality issue
+description: A dossier was wrong, thin, inconsistent, or a verification check should have caught something.
+title: "dossier: "
+labels: [harness, dossier-quality, triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        > [!WARNING]
+        > **Never paste confidential dossier content into this issue.** That includes pursuit
+        > context, Capability Pack or Account-Team Input Sheet material, and client-specific
+        > analysis. This repository is public and issues are permanent.
+        >
+        > Describe the problem in general terms: the section number, the check ID, the kind of
+        > claim, and the public source involved. A synthetic or public-company example is ideal.
+  - type: input
+    id: version
+    attributes:
+      label: Vantage version and harness version
+      description: Output of `vantage version`.
+      placeholder: "0.2.0 / harness 3.0.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: backend
+    attributes:
+      label: Backend
+      options: [workflow, api, agent-sdk, langgraph, adk, crewai]
+    validations:
+      required: true
+  - type: dropdown
+    id: tier
+    attributes:
+      label: Output tier
+      options: [EXECUTIVE, STANDARD, FULL_ANNEX]
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind of problem
+      options:
+        - Wrong or unsupported fact
+        - Contradiction between sections
+        - Missed or misattributed source
+        - Verification check did not fire (or fired wrongly)
+        - Remediation (P7R) left a defect or introduced one
+        - Section thin, stopped on budget
+        - Structure or formatting
+        - Export / collateral rendering
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: location
+    attributes:
+      label: Section(s) and check ID(s)
+      placeholder: "§8.3, §18.2; V5a, V10f"
+  - type: textarea
+    id: description
+    attributes:
+      label: What is wrong, and what should it have been?
+      description: General terms only. Cite public sources by URL where relevant.
+    validations:
+      required: true
+  - type: checkboxes
+    id: confidentiality
+    attributes:
+      label: Confidentiality
+      options:
+        - label: I have not pasted confidential dossier content, client data or secrets into this issue.
+          required: true

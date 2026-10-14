@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "vantage",
+  "version": "0.2.0",
+  "description": "Generate evidence-locked, verification-gated account research dossiers with the Vantage multi-agent engine, then export them as decks, documents, PDFs and microsites.",
+  "author": {
+    "name": "Bhaskar Bhaumik",
+    "url": "https://github.com/bhaskarbhaumik"
+  },
+  "homepage": "https://github.com/bhaskarbhaumik/vantage",
+  "repository": "https://github.com/bhaskarbhaumik/vantage",
+  "license": "MIT",
+  "keywords": [
+    "research",
+    "multi-agent",
+    "account-strategy",
+    "dossier",
+    "export",
+    "pptx",
+    "docx"
+  ]
+}

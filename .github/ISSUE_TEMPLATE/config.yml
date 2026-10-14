@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security vulnerability
+    url: https://github.com/bhaskarbhaumik/vantage/security/advisories/new
+    about: Report security issues privately. Never open a public issue for them.
+  - name: Support and questions
+    url: https://github.com/bhaskarbhaumik/vantage/blob/main/SUPPORT.md
+    about: Where to ask questions and what to include.
