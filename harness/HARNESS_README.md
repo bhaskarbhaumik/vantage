@@ -80,6 +80,7 @@ vantage run -c "Acme" -s acme --capability-pack ATTACHED --input-sheet ATTACHED
 | `strategic_pursuit_objectives` | | `NONE` | Drives §2.1 intelligence questions |
 | `harness_dir` | | `harness` | |
 | `run_dir` | | `runs/<slug>` | |
+| `remediation_rounds` | | `1` | `0`–`2`. Owner-remediation rounds after verification (P7R); `0` disables. Workflow backend only |
 
 ## Output tiers
 
@@ -88,6 +89,10 @@ vantage run -c "Acme" -s acme --capability-pack ATTACHED --input-sheet ATTACHED
 | `EXECUTIVE` | §0–§2 + §1 synthesis + top tables | 21.1, 21.9, 21.12 | 19 — Wave A reduced, Wave B skipped |
 | `STANDARD` | §0–§20, Opt subsections only where evidenced | 21.1–21.4, 21.8–21.12 | 29 |
 | `FULL_ANNEX` | All 22 sections | 21.1–21.12 | 29 — the default |
+
+Agent counts exclude P7R. When verification finds BLOCKERs, each remediation round adds a router,
+one agent per owner with an order, a re-sync agent for each synthesis owner downstream of a
+rewritten section (up to five), one or two state re-merges, and a re-verification.
 
 ## Run output layout
 
@@ -101,7 +106,9 @@ runs/<slug>/
     fragments/<agent>.json          per-agent contributions before merge
   qa/
     evidence-audit.json             adversarial verdicts; the refuted list is BINDING
-    verification-report.md/.json    V1–V12 outcomes, Overall Confidence, disclosures
+    verification-report.md/.json    V1–V12 outcomes, Overall Confidence, disclosures (final pass)
+    verification-report.r<n>.*      the report as it stood before remediation round n+1
+    remediation-orders.r<n>.json    P7R work orders: findings routed to owning agents, and the unroutable
     source-rewrite-map.json         retired → kept source IDs after dedup
   run.jsonl                         structured event stream
 ```

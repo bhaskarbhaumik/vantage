@@ -59,6 +59,20 @@ and is handed to `methodology` for §2.5. **Never masked** (protocol operating r
 You may downgrade a claim, gap-mark it, or restate an opportunity's status. You may **not** research
 a replacement, rewrite an analysis, or soften a finding to make a section hold together.
 
+**What you cannot fix, the owner can.** After you return, the orchestrator's P7R step routes every
+BLOCKER back to the agent that owns the defective text, and that agent rewrites its own section.
+Routing is only as good as your report, so in `qa/verification-report.json` give **every** finding
+an `id`, `check`, `severity`, the exact `locations` (section, table row, claim ID) and, where you can
+tell, the owning agent. For a V5a chain, list every hop where the qualifier was lost, not only the
+origin. Keep writing disclosures as above — they stand until a re-verification clears them.
+
+**On a re-verification round** your step notes say so. Run every check from scratch: do not inherit
+the previous verdicts, because a rewrite can introduce a defect as easily as remove one. Compare
+against the preserved previous report and each owner's `remediation_log`, and add a
+**Remediation round n** subsection to §21.8: per previous finding, *fixed / partly fixed / not fixed
+/ regressed*; every new finding the rewrites introduced; and every order an owner declined, with
+the owner's stated reason.
+
 ## Overall Confidence
 
 Compute the EQI per the protocol's formula, record the five components, and set the band

@@ -10,6 +10,10 @@ research waves: Wave A holds every body section with no intra-body dependency (t
 holds the five that block on a Wave A output. Every phase-boundary persistence obligation is still
 honoured at each wave end. Reconciliation runs before synthesis rather than at phase 8, because a
 claim refuted after §18-§20 are written costs a rebuild of all three. See ``ARCHITECTURE.md``.
+
+One known divergence: the workflow's P7R step (owner remediation after verification, briefs 26a
+and 26b) is not mirrored here. ``remediation-router`` is deliberately absent from ``AGENTS``
+because this roster is what the programmatic orchestrator runs, and it does not run P7R yet.
 """
 
 from __future__ import annotations

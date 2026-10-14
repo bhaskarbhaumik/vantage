@@ -49,6 +49,9 @@ P5b account-strategy     playbook                      (2 agents, concurrent)
 P6  exec-brief           methodology                   (2 agents — §1 derived last, §2)
       ▼
 P7  verification                                       (1 agent, FRESH CONTEXT — V1..V12)
+      ▼  only if BLOCKERs, up to remediation_rounds (default 1)
+P7R remediation-router → owners rewrite their own      (registers → body → §18 → §19/§20 → §1/§2,
+    sections → re-merge → verification (fresh)          each tier concurrent; see decision 7)
       ▼
 P8a appendices                                         (§21.2–21.7)
 P8b assembly                                           (deterministic — §21.1/9/10/11/12 + final doc)
@@ -86,7 +89,7 @@ JSON. Running §14 after §10 buys nothing, and costs four sequential agent turn
 **2. Reconciliation runs at P4, before synthesis, rather than inside phase 8.** This is the
 single most important scheduling decision in the design — see below.
 
-## Six design decisions, and why
+## Seven design decisions, and why
 
 ### 1. Agents write to disk; only ≤200-word digests flow through the orchestrator
 
@@ -155,6 +158,28 @@ its arithmetic was checked when it was not.
 Likewise `source-merge` (P4a) and `assembly` (P8b) run as Python in the programmatic backends,
 because collation must be exact and reproducible. The Workflow backend performs the same work with
 an agent against the same brief and the same standard.
+
+### 7. Verification findings go back to the owners, not into a footnote
+
+Verification may downgrade a claim or add a label; it may not rewrite another agent's analysis,
+because a verifier that rewrites is no longer independent of what it checks. Before P7R that rule
+left every prose defect *annotated*: across the first runs, refuted and weakened claims went on
+being asserted in §3–§17, and qualifiers lost in the body stayed lost in §18–§20 and §1, while the
+title block read PASS WITH DISCLOSURES.
+
+P7R closes the loop without breaking the rule. `remediation-router` (brief 26a) turns the report
+into work orders for the agents that own the defective text — one order per hop of a V5a chain —
+and each owner revises only its own section and fragment under brief 26b. Owners run in dependency
+order, because a fix to §18 made before its §8 origin is fixed simply restates the defect. Once a
+register or body owner rewrites, every synthesis owner downstream of it is re-dispatched to re-sync
+even when no finding names its text: the first Alcoa proof run fixed §4 and §8 and left §18, §19
+and §1 restating the pre-fix values, which the re-verifier then raised as new BLOCKERs. A fresh
+verifier then re-runs **every** check, since a rewrite can introduce a defect as easily as remove
+one, and §21.8 records the round: fixed, partly fixed, not fixed, regressed, declined.
+
+The loop is for rewriting, not research. A finding that needs a document nobody retrieved is
+unroutable and stays disclosed with the topic named for an extended-budget re-run. The workflow
+backend implements P7R; the programmatic backends do not yet.
 
 ## What parallelism costs
 
