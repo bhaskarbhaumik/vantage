@@ -1,0 +1,71 @@
+{
+ "runs": [
+  {
+   "slug": "example-2026-10",
+   "run_dir": "/tmp/vantage/run/example-2026-10",
+   "dossier": "/tmp/vantage/run/example-2026-10/example-2026-10-vantage.md",
+   "client": "Example Corp",
+   "as_of": "2026-10-14",
+   "tier": "FULL_ANNEX",
+   "mtime": 1760450500.0,
+   "verification": {
+    "result": "PASS WITH FINDINGS",
+    "overall_confidence": "Moderate",
+    "eqi": 71,
+    "blockers": 1,
+    "majors": 5,
+    "minors": 12
+   },
+   "exports": [
+    "/tmp/vantage/run/example-2026-10/exports/example.pptx"
+   ]
+  },
+  {
+   "slug": "acme-2026-09",
+   "run_dir": "/tmp/vantage/run/acme-2026-09",
+   "dossier": "/tmp/vantage/run/acme-2026-09/acme-2026-09-vantage.md",
+   "client": "Acme Industries",
+   "as_of": "2026-09-02",
+   "tier": "STANDARD",
+   "mtime": 1757000000.0,
+   "verification": {
+    "result": "FAIL",
+    "overall_confidence": "Insufficient",
+    "eqi": 38,
+    "blockers": 6,
+    "majors": 18,
+    "minors": 30
+   },
+   "exports": []
+  },
+  {
+   "slug": "globex-2026-08",
+   "run_dir": "/tmp/vantage/run/globex-2026-08",
+   "dossier": null,
+   "client": null,
+   "as_of": null,
+   "tier": null,
+   "mtime": 1755000000.0,
+   "verification": null,
+   "exports": []
+  },
+  {
+   "slug": "initech-2026-07",
+   "run_dir": "/tmp/vantage/run/initech-2026-07",
+   "dossier": "/tmp/vantage/run/initech-2026-07/initech-2026-07-vantage.md",
+   "client": "Initech",
+   "as_of": "2026-07-20",
+   "tier": "EXECUTIVE",
+   "mtime": 1753000000.0,
+   "verification": {
+    "result": "PASS",
+    "overall_confidence": "High",
+    "eqi": 88,
+    "blockers": 0,
+    "majors": 1,
+    "minors": 4
+   },
+   "exports": []
+  }
+ ]
+}

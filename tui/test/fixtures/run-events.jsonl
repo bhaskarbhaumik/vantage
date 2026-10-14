@@ -1,0 +1,60 @@
+{"type": "run_start", "ts": 1760450007.5, "stage": null, "agent": null, "message": "Example Corp", "data": {}}
+{"type": "stage_start", "ts": 1760450015.0, "stage": "P0 Preflight", "agent": null, "message": null, "data": {}}
+{"type": "agent_start", "ts": 1760450022.5, "stage": "P0", "agent": "preflight", "message": null, "data": {}}
+{"type": "agent_tool", "ts": 1760450030.0, "stage": "P0", "agent": "preflight", "message": "web_search: Example Corp annual report", "data": {}}
+{"type": "agent_done", "ts": 1760450037.5, "stage": "P0", "agent": "preflight", "message": null, "data": {"iters": 3, "usage": {"input_tokens": 12000, "output_tokens": 1800}}}
+{"type": "stage_done", "ts": 1760450045.0, "stage": "P0 Preflight", "agent": null, "message": null, "data": {}}
+{"type": "stage_start", "ts": 1760450052.5, "stage": "P1 Backbone", "agent": null, "message": null, "data": {"agents": ["backbone"]}}
+{"type": "agent_start", "ts": 1760450060.0, "stage": "P1", "agent": "backbone", "message": null, "data": {}}
+{"type": "agent_done", "ts": 1760450067.5, "stage": "P1", "agent": "backbone", "message": null, "data": {"iters": 3, "usage": {"input_tokens": 30000, "output_tokens": 4200}}}
+{"type": "stage_done", "ts": 1760450075.0, "stage": "P1 Backbone", "agent": null, "message": null, "data": {}}
+{"type": "stage_start", "ts": 1760450082.5, "stage": "P2 Wave A", "agent": null, "message": null, "data": {"agents": ["corporate", "market", "financials"]}}
+{"type": "agent_start", "ts": 1760450090.0, "stage": "P2", "agent": "corporate", "message": null, "data": {}}
+{"type": "agent_start", "ts": 1760450097.5, "stage": "P2", "agent": "market", "message": null, "data": {}}
+{"type": "agent_start", "ts": 1760450105.0, "stage": "P2", "agent": "financials", "message": null, "data": {}}
+{"type": "agent_progress", "ts": 1760450112.5, "stage": "P2", "agent": "market", "message": null, "data": {"usage": {"input_tokens": 9000, "output_tokens": 700}}}
+{"type": "agent_done", "ts": 1760450120.0, "stage": "P2", "agent": "corporate", "message": null, "data": {"iters": 3, "usage": {"input_tokens": 40000, "output_tokens": 5100}}}
+{"type": "agent_error", "ts": 1760450127.5, "stage": "P2", "agent": "financials", "message": "tool budget exhausted", "data": {}}
+{"type": "agent_done", "ts": 1760450135.0, "stage": "P2", "agent": "market", "message": null, "data": {"iters": 3, "usage": {"input_tokens": 42000, "output_tokens": 6100}}}
+{"type": "run_warning", "ts": 1760450142.5, "stage": "P2 Wave A", "agent": null, "message": "no return from: financials (V10e will flag the missing fragments)", "data": {}}
+{"type": "stage_done", "ts": 1760450150.0, "stage": "P2 Wave A", "agent": null, "message": null, "data": {}}
+{"type": "stage_start", "ts": 1760450157.5, "stage": "P3 Wave B", "agent": null, "message": null, "data": {"agents": ["competition"]}}
+{"type": "agent_start", "ts": 1760450165.0, "stage": "P3", "agent": "competition", "message": null, "data": {}}
+{"type": "agent_done", "ts": 1760450172.5, "stage": "P3", "agent": "competition", "message": null, "data": {"iters": 3, "usage": {"input_tokens": 35000, "output_tokens": 4800}}}
+{"type": "stage_done", "ts": 1760450180.0, "stage": "P3 Wave B", "agent": null, "message": null, "data": {}}
+{"type": "stage_start", "ts": 1760450187.5, "stage": "P4 Merge", "agent": null, "message": null, "data": {"agents": ["source-merge"]}}
+{"type": "stage_done", "ts": 1760450195.0, "stage": "P4 Merge", "agent": null, "message": "212 sources after dedup (9 retired)", "data": {}}
+{"type": "stage_start", "ts": 1760450202.5, "stage": "P4 Reconcile", "agent": null, "message": null, "data": {"agents": ["contradiction", "evidence-audit"]}}
+{"type": "agent_start", "ts": 1760450210.0, "stage": "P4", "agent": "contradiction", "message": null, "data": {}}
+{"type": "agent_done", "ts": 1760450217.5, "stage": "P4", "agent": "contradiction", "message": null, "data": {"iters": 3, "usage": {"input_tokens": 20000, "output_tokens": 2000}}}
+{"type": "stage_done", "ts": 1760450225.0, "stage": "P4 Reconcile", "agent": null, "message": null, "data": {}}
+{"type": "stage_start", "ts": 1760450232.5, "stage": "P5 Opportunity", "agent": null, "message": null, "data": {"agents": ["opportunity"]}}
+{"type": "agent_start", "ts": 1760450240.0, "stage": "P5", "agent": "opportunity", "message": null, "data": {}}
+{"type": "agent_done", "ts": 1760450247.5, "stage": "P5", "agent": "opportunity", "message": null, "data": {"iters": 3, "usage": {"input_tokens": 25000, "output_tokens": 3900}}}
+{"type": "stage_done", "ts": 1760450255.0, "stage": "P5 Opportunity", "agent": null, "message": null, "data": {}}
+{"type": "stage_start", "ts": 1760450262.5, "stage": "P6 Brief", "agent": null, "message": null, "data": {"agents": ["exec-brief"]}}
+{"type": "agent_start", "ts": 1760450270.0, "stage": "P6", "agent": "exec-brief", "message": null, "data": {}}
+{"type": "agent_done", "ts": 1760450277.5, "stage": "P6", "agent": "exec-brief", "message": null, "data": {"iters": 3, "usage": {"input_tokens": 18000, "output_tokens": 2500}}}
+{"type": "stage_done", "ts": 1760450285.0, "stage": "P6 Brief", "agent": null, "message": null, "data": {}}
+{"type": "stage_start", "ts": 1760450292.5, "stage": "P7 Verification", "agent": null, "message": null, "data": {"agents": ["verification"]}}
+{"type": "agent_start", "ts": 1760450300.0, "stage": "P7", "agent": "verification", "message": null, "data": {}}
+{"type": "agent_done", "ts": 1760450307.5, "stage": "P7", "agent": "verification", "message": null, "data": {"iters": 3, "usage": {"input_tokens": 60000, "output_tokens": 7000}}}
+{"type": "stage_done", "ts": 1760450315.0, "stage": "P7 Verification", "agent": null, "message": null, "data": {}}
+{"type": "stage_start", "ts": 1760450322.5, "stage": "P7R Remediation", "agent": null, "message": null, "data": {}}
+{"type": "log", "ts": 1760450330.0, "stage": "P7R Remediation", "agent": null, "message": "P7R round 1: 3 BLOCKER(s) - routing findings to their owning agents", "data": {}}
+{"type": "agent_start", "ts": 1760450337.5, "stage": "P7R", "agent": "remediation-router-r1", "message": null, "data": {}}
+{"type": "agent_done", "ts": 1760450345.0, "stage": "P7R", "agent": "remediation-router-r1", "message": null, "data": {"iters": 3, "usage": {"input_tokens": 8000, "output_tokens": 900}}}
+{"type": "agent_start", "ts": 1760450352.5, "stage": "P7R", "agent": "market-r1", "message": null, "data": {}}
+{"type": "agent_done", "ts": 1760450360.0, "stage": "P7R", "agent": "market-r1", "message": null, "data": {"iters": 3, "usage": {"input_tokens": 15000, "output_tokens": 2100}}}
+{"type": "agent_start", "ts": 1760450367.5, "stage": "P7R", "agent": "verification-r1", "message": null, "data": {}}
+{"type": "agent_done", "ts": 1760450375.0, "stage": "P7R", "agent": "verification-r1", "message": null, "data": {"iters": 3, "usage": {"input_tokens": 50000, "output_tokens": 6400}}}
+{"type": "stage_done", "ts": 1760450382.5, "stage": "P7R Remediation", "agent": null, "message": "BLOCKERs 3 -> 1", "data": {}}
+{"type": "stage_start", "ts": 1760450390.0, "stage": "P8 Appendices", "agent": null, "message": null, "data": {"agents": ["appendices"]}}
+{"type": "agent_start", "ts": 1760450397.5, "stage": "P8", "agent": "appendices", "message": null, "data": {}}
+{"type": "agent_done", "ts": 1760450405.0, "stage": "P8", "agent": "appendices", "message": null, "data": {"iters": 3, "usage": {"input_tokens": 22000, "output_tokens": 3300}}}
+{"type": "stage_done", "ts": 1760450412.5, "stage": "P8 Appendices", "agent": null, "message": null, "data": {}}
+{"type": "stage_start", "ts": 1760450420.0, "stage": "P8 Assemble", "agent": null, "message": null, "data": {"agents": ["assembly"]}}
+{"type": "stage_done", "ts": 1760450427.5, "stage": "P8 Assemble", "agent": null, "message": "/tmp/vantage/run/example-2026-10/example-2026-10-vantage.md", "data": {}}
+{"type": "run_done", "ts": 1760450435.0, "stage": null, "agent": null, "message": "/tmp/vantage/run/example-2026-10/example-2026-10-vantage.md", "data": {"agents_ok": 11, "agents_total": 12, "usage": {"input_tokens": 405000, "output_tokens": 50700}, "verification": {"result": "PASS WITH FINDINGS", "overall_confidence": "Moderate", "eqi": 71, "blockers": 1, "majors": 5, "minors": 12, "budget_limited_topics": ["supply chain"]}}}
+{"type": "run_warning", "ts": 1760450442.5, "stage": null, "agent": null, "message": "stopped on budget (not diminishing returns): supply chain - extending the budget and re-running these would materially improve coverage", "data": {}}
+{"result": {"slug": "example-2026-10", "run_dir": "/tmp/vantage/run/example-2026-10", "dossier": "/tmp/vantage/run/example-2026-10/example-2026-10-vantage.md", "entity": "Example Corp", "ownership_form": "public", "jurisdictions": ["US"], "vertical_module": "NONE", "vertical_confidence": "Low", "entity_ambiguity": null, "agents_ok": 11, "agents_total": 12, "verification": {"result": "PASS WITH FINDINGS", "overall_confidence": "Moderate", "eqi": 71, "blockers": 1, "majors": 5, "minors": 12, "budget_limited_topics": ["supply chain"]}, "usage": {"input_tokens": 405000, "output_tokens": 50700}, "errors": ["financials: tool budget exhausted"]}}

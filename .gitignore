@@ -12,7 +12,7 @@ build/
 
 # ── Node / TypeScript ──
 node_modules/
-cli/dist/
+tui/dist/
 
 # ── Secrets & local env ──
 .env

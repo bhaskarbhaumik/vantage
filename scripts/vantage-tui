@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# Launch the Vantage interactive TUI (vantage-tui). Install this script as a symlink on PATH;
+# VANTAGE_REPO overrides repo discovery. All arguments are forwarded, e.g.
+#   vantage-tui run --client "Example Corp"     vantage-tui runs     vantage-tui --ascii
+set -euo pipefail
+
+SOURCE="${BASH_SOURCE[0]}"
+while [[ -L "$SOURCE" ]]; do
+  SOURCE_DIR="$(cd "$(dirname "$SOURCE")" && pwd)"
+  SOURCE="$(readlink "$SOURCE")"
+  [[ "$SOURCE" = /* ]] || SOURCE="$SOURCE_DIR/$SOURCE"
+done
+REPO="${VANTAGE_REPO:-$(cd "$(dirname "$SOURCE")/.." && pwd)}"
+ENTRY="$REPO/tui/dist/index.js"
+
+if ! command -v node >/dev/null 2>&1; then
+  echo "vantage-tui: Node.js 18.19 or newer is required (https://nodejs.org)" >&2
+  exit 1
+fi
+
+if [[ ! -f "$ENTRY" ]]; then
+  echo "vantage-tui: TUI not built at $ENTRY" >&2
+  echo "  build it with:  (cd \"$REPO\" && npm ci && npm run build)" >&2
+  exit 1
+fi
+
+exec node "$ENTRY" "$@"
