@@ -1,223 +1,211 @@
-# Vantage — Verified Account Navigator: Targeting, Analysis & GTM Engine
+# Vantage™
 
-Multi-agent, **multi-backend** research engine that produces **Vantage dossiers**
-(the evidence-locked, claim-ledgered, verification-gated **v3.0.0 blueprint** in `harness/` —
-22 sections, 29 agents, up to ten concurrent). It ships as a
-Python (`uv`) engine + a TypeScript (`npm`) **Ink TUI**, runs a Claude Skill + `/vantage`
-command inside Claude Code, and deploys to **GCP / Azure / AWS**.
+**Verified Account Navigator: Targeting, Analysis & GTM Engine**
 
-> Scores are outside-in decision-support tools, never client-facing measurements.
+[![CI](https://github.com/bhaskarbhaumik/vantage/actions/workflows/ci.yml/badge.svg)](https://github.com/bhaskarbhaumik/vantage/actions/workflows/ci.yml)
+[![Version](https://img.shields.io/badge/version-0.2.0-blue)](CHANGELOG.md)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![Python 3.12+](https://img.shields.io/badge/python-3.12%2B-3776ab)](pyproject.toml)
+[![Node 18.19+](https://img.shields.io/badge/node-18.19%2B-339933)](package.json)
 
-## Backends (pick per run)
+Vantage is a multi-agent research engine that writes an account research dossier on a named
+company: 22 sections, every claim tied to a source, and a verification gate that decides how far
+the result can be trusted before anyone reads it. A terminal UI and an export pipeline sit on top,
+and the whole thing installs as a Claude Code plugin.
 
-| Backend | What it is | Needs |
-|---------|------------|-------|
-| **`workflow`** *(default)* | Runs the bundled Claude Code Workflow harness — subscription, no API key | `claude` CLI |
-| **`api`** | Direct multi-provider API fan-out. The full headless engine. | `--auth api-key` + `ANTHROPIC_API_KEY` (+ `TAVILY_API_KEY`, `SEC_EDGAR_IDENTITY`) |
-| **`agent-sdk`** | Same pipeline, each agent run by the Claude Agent SDK | `+ uv sync --extra agent-sdk` |
-| **`langgraph`** | A LangGraph `StateGraph` drives the stage pipeline | `+ uv sync --extra langgraph` |
-| **`adk`** | Google ADK sequential-agent integration | `+ uv sync --extra adk` |
-| **`crewai`** | CrewAI Flow integration | `+ uv sync --extra crewai` |
+> Scores in a dossier are outside-in decision aids built from public evidence. They are not
+> measurements of the company and must not be presented to it.
 
-The default (`workflow`) runs on your Claude subscription and is best from inside Claude Code. The
-cloud-deployable, headless path is **`api`** (and the framework backends). `api` is fully
-implemented; `agent-sdk` swaps the per-agent runtime; `langgraph`/`adk`/`crewai` are genuine
-framework integrations that drive the shared, tested stage pipeline.
+## Why it exists
+
+Long, structured research written by a language model fails in a predictable way: the summary is
+written first, the body is bent to fit it, and a confident fabrication reaches a decision maker as
+a fact. Vantage is built around that failure.
+
+- **Evidence-locked.** Every statement carries a source ID and an evidence status
+  (`CONFIRMED`, `ANNOUNCED`, `OBSERVED-SIGNAL`, `INFERRED`, `UNKNOWN`) in a claim ledger. Gaps are
+  recorded as gaps, not filled in.
+- **Adversarial before synthesis.** An audit agent tries to refute every high-materiality claim
+  before the opportunity and strategy sections are written. Refuted claims cannot be cited.
+- **The executive summary is written last.** §1 is derived from the finished body and must point
+  every sentence at a register entry.
+- **A verification gate.** A fresh-context verifier runs checks V1–V12 and grades the dossier
+  `Strong`, `Adequate`, `Thin` or `Insufficient`. *Insufficient means do not present it.*
+- **Owner remediation (P7R).** Blocking findings go back to the agents that own the defective
+  text. They rewrite their own sections in dependency order, everything downstream re-syncs, and
+  a fresh verifier re-runs every check. §21.8 records the outcome of each round.
+
+## Features
+
+- 29 agents across 12 steps, up to ten running concurrently, driven by a Markdown harness you can
+  edit without touching code ([harness/](harness/HARNESS_README.md)).
+- Three output tiers: `EXECUTIVE`, `STANDARD` and `FULL_ANNEX` (default).
+- Six execution backends. The default, `workflow`, runs on your Claude subscription with no API
+  key.
+- Subscription-first credentials. API billing is an explicit, per-run or per-config opt-in.
+- `vantage` CLI: every config key is also a flag, `--json` on every read command, shell
+  completion for bash, zsh and fish.
+- `vantage-tui`: an Ink terminal UI with a live per-agent dashboard, a runs browser and an export
+  wizard. Nerd Font icons by default, with `unicode` and `ascii` fallbacks.
+- `vantage export`: turns a finished dossier into a PowerPoint deck, a Word whitepaper, a PDF and
+  a single self-contained HTML microsite or deck, with a classification marking on every page.
+- A Claude Code plugin with `/vantage:generate` and `/vantage:export`.
+- Container image and deploy helpers for GCP, Azure and AWS.
+
+## Quick start
+
+You need [uv](https://docs.astral.sh/uv/) (it installs the pinned Python), Node.js 18.19 or newer
+for the TUI, and the [Claude Code](https://docs.anthropic.com/en/docs/claude-code) CLI signed in to
+a Claude plan for the default backend.
+
+```bash
+git clone https://github.com/bhaskarbhaumik/vantage.git && cd vantage
+uv sync --extra export         # engine + export renderers (use --extra dev to contribute)
+npm ci && npm run build        # terminal UI -> tui/dist/
+uv run vantage doctor          # configuration, auth, backends, export helpers, TUI
+```
+
+Write a dossier, then export it:
+
+```bash
+uv run vantage run --client "Example Industries, Inc." --slug example-2026-10
+uv run vantage runs list
+uv run vantage export example-2026-10 --format pptx --format html
+uv run vantage --tui                                               # or the interactive UI
+```
+
+`vantage-engine` is an alias of `vantage`. The full walk-through, including PATH setup and a
+first-run checklist, is in [Getting started](docs/getting-started.md).
+
+```text
+$ vantage --help        # excerpt: the command list
+╭─ Commands ───────────────────────────────────────────────────────────────────────────────────────╮
+│ run         Run a dossier end to end with the selected backend.                                  │
+│ generate    Alias of `run`: produce a dossier end to end.                                        │
+│ backends    List execution backends and their readiness.                                         │
+│ doctor      Environment, configuration, auth, backend, export and TUI diagnostics.               │
+│ deploy      Build the container and deploy the engine to a cloud target.                         │
+│ serve       Run the engine as an HTTP service (GET /healthz, POST /run) — for cloud service      │
+│             deploys.                                                                             │
+│ version     Print the engine version.                                                            │
+│ options     List every CLI option — the friendly globals and one flag per config key.            │
+│ export      Export a dossier to PPTX, DOCX, PDF and/or self-contained HTML.                      │
+│ tui         Launch the Ink TUI (same as `vantage --tui`); extra arguments are forwarded.         │
+│ config      Inspect and manage configuration.                                                    │
+│ auth        Inspect and switch the credential mode.                                              │
+│ runs        List, inspect, open and delete runs in the output dir.                               │
+│ completion  Shell completion scripts (bash, zsh, fish).                                          │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+```
+
+The TUI home screen (`vantage-tui --ascii --no-color`, sample data):
+
+```text
+@ Vantage                                                             [* subscription]  engine 0.2.0
+1:~ Home  2:+ New  3:* Live  4:= Runs  5:v Export  6:+ Doctor  7:# Backends  8:% Config
++--------------------------------------------------------------------++----------------------------+
+| ~ Engine                                                           || > Quick actions            |
+| version      0.2.0  harness 3.0.0  config 2.2                      || > + New dossier            |
+| tui          0.2.0                                                 ||   = Browse runs            |
+| auth         [* subscription]                                      ||   v Export a dossier       |
+| backend      workflow                                              ||   + Doctor                 |
+| tier         FULL_ANNEX                                            ||   # Backends               |
+| engine cmd   uv run --quiet --project <repo> vantage               ||   % Configuration          |
++--------------------------------------------------------------------++----------------------------+
++--------------------------------------------------------------------------------------------------+
+| = Recent runs                                                                       4 browse all |
+| # example-2026-10                    Adequate      1B/5M/12m  2026-10-14                         |
+| # acme-2026-09                       Insufficient  6B/18M/30m 2026-09-04                         |
+| o globex-2026-08                     unverified    -          2026-08-12                         |
+| # initech-2026-07                    Strong        0B/1M/4m   2026-07-20                         |
++--------------------------------------------------------------------------------------------------+
+enter open - 1-8 screens - ? help - esc back - q quit
+```
+
+## Claude Code plugin
+
+Inside Claude Code:
+
+```text
+/plugin marketplace add bhaskarbhaumik/vantage
+/plugin install vantage@vantage
+```
+
+| Command | What it does |
+|---|---|
+| `/vantage:generate <company> [backend] [tier]` | Research and write a dossier |
+| `/vantage:export <run dir or dossier>` | Turn a finished dossier into a deck, whitepaper, PDF and HTML |
+| `/vantage <company>` | Short alias of `/vantage:generate`, available inside this repository or after `scripts/install-skill.sh --link` |
+
+With the default backend the skill runs the bundled workflow in your Claude Code session through
+the Workflow tool. See [Claude Code](docs/claude-code.md).
+
+## Backends
+
+| Backend | Runs on | Needs |
+|---|---|---|
+| `workflow` *(default)* | Claude subscription, through the Claude Code CLI | `claude` on PATH, signed in |
+| `api` | Provider APIs directly (Anthropic, OpenAI, Gemini) | `--auth api-key` and the provider keys |
+| `agent-sdk` | The same pipeline, each agent run by the Claude Agent SDK | `uv sync --extra agent-sdk` |
+| `langgraph` | A LangGraph `StateGraph` over the shared pipeline | `uv sync --extra langgraph`, `--auth api-key` |
+| `adk` | Google ADK sequential agents | `uv sync --extra adk`, `--auth api-key` |
+| `crewai` | A CrewAI Flow | `uv sync --extra crewai`, `--auth api-key` |
+
+`uv run vantage backends` shows readiness. Details and trade-offs: [Backends](docs/backends.md).
 
 ## Credentials
 
-**Vantage runs on your Claude subscription by default.** In `subscription` mode the engine reads no
-API key at all — an `ANTHROPIC_API_KEY` exported for some other tool is deliberately ignored, so it
-cannot silently turn a subscription run into a metered one. API billing is opt-in.
+Vantage runs on your Claude subscription by default. In `subscription` mode the engine reads no API
+key at all, so an `ANTHROPIC_API_KEY` exported for another tool cannot turn a run into a metered
+one. Per-token billing happens only when you ask for it:
 
 ```bash
-vantage-engine auth status                    # mode, what each agent class routes to, key presence
-vantage-engine run -c Acme -s acme --auth api-key           # metered, this run only
-vantage-engine run -c Acme -s acme --auth api-key --ask-key # prompt for the key; never stored
-vantage-engine auth use api-key               # persist the default in ~/.config/vantage/default.json
+uv run vantage auth status                                     # what would be used, and whether keys are set
+uv run vantage run --client "Example Corp" --backend api --auth api-key   # billed per token, this run only
 ```
 
-Resolution order for a key: the env var → (with `--ask-key`) a hidden terminal prompt → fail with
-the variable named. `ANTHROPIC_MODEL`, if set, pins every anthropic-routed agent to one model;
-`doctor` and `run` warn that this collapses the `role_model_map` tiers.
+Keys live in environment variables only and are never written to the config file. See
+[Authentication and billing](docs/auth.md).
 
-Two credential **classes**, so the expensive fan-out can bill separately from the orchestrator:
+## Output
 
-| Profile | Agents | Config key |
-|---|---|---|
-| `orchestrator` | preflight, backbone, merge, reconcile, synthesis, verification, assembly (13) | `auth.orchestrator` |
-| `research` | the section-wise deep-research agents — Wave A, Wave B, vertical annex (16) | `auth.research` |
-
-Each takes `provider`, `api_key_env`, `model`, `model_env`; unset fields inherit from the role's
-model tier. So the research fan-out can run on Gemini against its own key while the orchestrator
-stays on Claude:
-
-```json
-"auth": {
-  "mode": "api-key",
-  "research": { "provider": "gemini", "api_key_env": "VANTAGE_RESEARCH_KEY" }
-}
+```text
+~/.cache/vantage/run/<slug>/
+  <slug>-vantage.md          the dossier
+  sections/                  one Markdown file per owning agent
+  state/                     merged run state (schema 3.0) and per-agent fragments
+  qa/                        evidence audit, verification report(s), remediation orders
+  run.jsonl                  structured event stream
+  exports/                   vantage export output: deck, whitepaper, PDF, HTML, manifest.json, plan/
 ```
 
-> Keys live in the environment only. Vantage never writes one to the config file and never logs one.
+The run root is `engine.output_dir`. Reading a finished run (Overall Confidence, §21.12, §2.5):
+[Architecture](docs/architecture.md#reading-a-dossier).
 
-## Install
+## Documentation
 
-```bash
-# Python engine
-uv sync                      # core (workflow + api backends)
-uv sync --extra dev          # + tests/lint
-uv sync --extra langgraph    # a framework backend, on demand
-uv sync --extra cloud        # all cloud SDKs
+| | |
+|---|---|
+| [Getting started](docs/getting-started.md) | Install, first run, first export |
+| [CLI guide](docs/cli.md) · [CLI reference](docs/reference/cli.md) | Commands, flags, precedence, JSON mode, exit codes |
+| [Terminal UI](docs/tui.md) | Screens, keys, icon modes, themes |
+| [Export](docs/export.md) | Formats, depth, branding, helpers, plans |
+| [Configuration](docs/configuration.md) | Every section, environment variables, migration |
+| [Backends](docs/backends.md) · [Authentication](docs/auth.md) | Execution and billing |
+| [Architecture](docs/architecture.md) | Pipeline, P7R remediation, harness design |
+| [Claude Code](docs/claude-code.md) | Plugin, skills, Workflow tool |
+| [Deployment](docs/deployment.md) | Container, GCP, Azure, AWS |
+| [Troubleshooting](docs/troubleshooting.md) · [FAQ](docs/faq.md) | When something is off |
 
-# Ink TUI
-npm install && npm run build
+All documentation: [docs/](docs/README.md).
 
-# Env + config
-cp .env.example .env         # fill in keys
-uv run vantage-engine config init   # → ~/.config/vantage/default.json
-uv run vantage-engine doctor        # environment diagnostics
+## Contributing
 
-# Terminal launcher + Claude skill/command
-ln -sfn "$(pwd)/scripts/vantage" ~/.local/bin/vantage
-bash scripts/install-skill.sh           # links skill + /vantage into ~/.claude
-```
-
-Python **3.14** (via `uv`), Node **≥18**.
-
-> **Extras are exclusive per `uv sync`.** `uv sync --extra X` makes the env match *exactly* that
-> set (dropping others) — list what you want together, e.g. `uv sync --extra dev --extra langgraph`.
-> **`crewai` note:** its `chromadb` dependency still uses `pydantic.v1` and does not import on
-> Python 3.14 — `doctor` reports it as "installed but not importable". Use Python ≤3.13 for the
-> crewai backend, or prefer `langgraph` / `api`.
-
-## Use
-
-```bash
-# Rich Ink TUI (backend + tier pickers, live per-agent progress)
-vantage
-
-# Or the engine CLI directly
-uv run vantage-engine run \
-  --client "Acme Industries, Inc." --slug acme-2026-08 \
-  --backend api --tier FULL_ANNEX --ticker "NYSE: ACME"
-
-# A fast read instead of a full pursuit dossier
-uv run vantage-engine run -c "Acme" -s acme --tier EXECUTIVE
-
-uv run vantage-engine backends     # readiness of all six
-uv run vantage-engine doctor
-uv run vantage-engine deploy --target gcp --dry-run
-```
-
-Inside **Claude Code**: `/vantage Acme Industries, Inc.` (or ask to "run a Vantage dossier for Acme").
-The skill reads your default backend from `~/.config/vantage/default.json`.
-
-Output lands in `~/.cache/vantage/run/<slug>/<slug>-vantage.md` (+ `state/`, `qa/`, `run.jsonl`).
-
-### Output tiers
-
-| Tier | Contents | Agents |
-|---|---|---|
-| `EXECUTIVE` | §0–§2 + §1 synthesis + top tables | 19 |
-| `STANDARD` | §0–§20, condensed appendices | 29 |
-| `FULL_ANNEX` *(default)* | All 22 sections + §21.1–21.12 | 29 |
-
-## Architecture
-
-```
-preflight (P0, hard gate: entity · ownership form · jurisdiction adapters · verticals · tier)
-  └─ backbone (P1: primary sources + precomputed-financials from XBRL)
-  └─ Wave A (P2, 10 concurrent): corporate · market · business-model · financials · technology
-        strategy · leadership · signals · risk · esg            §3 §4 §5 §6 §8 §9 §10 §13 §14 §17
-  └─ Wave B (P3): operations · competition · customers · ai-readiness · vendors · vertical
-                                                                §7 §11 §12 §15 §16
-  └─ reconcile (P4): source-merge → contradiction + evidence-audit
-  └─ synthesis (P5): opportunity → account-strategy + playbook   §18 §19 §20
-  └─ exec-brief + methodology (P6 — §1 derived last)             §1 §2
-  └─ verification (P7, fresh context, V1–V12) → appendices + assembly (P8)   §21
-```
-
-Four properties do most of the work:
-
-- **§1 is written last and placed first.** An executive summary written first invents conclusions
-  the body then has to justify — the mechanism that produces confident fabrication in long
-  structured generation.
-- **The adversarial audit runs before §18.** A refuted claim caught at P4 costs one downgrade;
-  caught at verification it costs a rebuild of §18–§20.
-- **§3–§17 are vendor-neutral**, checked at BLOCKER severity, so the dossier reads as research rather
-  than pre-sales material. §15.6 is the one gated exception.
-- **Win probability, account revenue, relationship strength, and stakeholder access are gated** on
-  the §21.10 Account-Team Input Sheet. Without it they render `[INTERNAL REQUIRED]` and §21.10
-  is emitted as a blank template for the account team to fill in.
-
-- **One generic executor** runs every LLM agent, driven by its Markdown brief in `harness/` — so
-  "port all agents" is one code path, not 29. `source-merge` and `assembly` are deterministic
-  Python (collation must be exact), as is the XBRL precompute that §6 reconciles against.
-- **Provider-agnostic** tool loop (Anthropic native; OpenAI + Gemini translated) with a
-  `submit_section` terminal tool; research via **web search (Tavily/Brave)**, **SEC EDGAR**,
-  **market data (yfinance)**.
-- **Injectable per-agent runner + stage lifecycle** (`prepare`/`execute_step`) is what lets every
-  backend reuse the identical DAG.
-
-See `harness/ARCHITECTURE.md` for the dossier design and the phase→wave mapping and `docs`-in-code docstrings for the engine.
-
-## Layout
-
-```
-config/default.json          engine + MAS config (→ ~/.config/vantage/default.json)
-harness/                     the v3.0.0 blueprint, briefs, contracts, state schema, workflow
-src/vantage/
-  settings.py models/        config + canonical-state models + events
-  blueprint/                 loader + stage DAG
-  providers/ tools/          anthropic|openai|gemini + web/edgar/market + run-dir fs
-  agents/ pipeline/ render/   executor · orchestrator · merge · assembly
-  engine/                    6 backends + registry
-  auth.py                    subscription-first credential resolution
-  cli.py server.py cloud/    Typer CLI · HTTP service · gcp|azure|aws deploy
-cli/                         TypeScript Ink TUI  →  ~/.local/bin/vantage
-scripts/                     launcher · skill installer
-.claude/skills|commands/     vantage skill + /vantage command
-deploy/                      Dockerfile targets + per-cloud manifests/READMEs
-tests/                       pytest suite
-```
-
-## Migrating from the v2.2 harness
-
-The v3 rewrite renumbers the dossier (13 sections → 22), replaces the agent roster, and changes the
-state schema (2.1 → 3.0). Three things need attention:
-
-1. **Run `vantage-engine config migrate`.** A v2-era user config wins over the shipped template
-   and carries the old `role_model_map` plus `max_concurrency: 8`, which silently serialises the
-   ten-agent research wave — and an `output_dir` still pointing at `~/vantage/runs`. `migrate` drops
-   `engine.depth` and agents that no longer exist, fills in keys the template has gained, and
-   keeps any genuine override (it backs the old file up to `default.json.bak`). `--dry-run` shows
-   the changes first; `doctor` reports the drift and points here.
-2. **`--depth BRIEF|STANDARD|DEEP` is now `--tier EXECUTIVE|STANDARD|FULL_ANNEX`**
-   (`VANTAGE_DEPTH` → `VANTAGE_TIER`). Old runs' `state.json` is schema 2.1 and is not read
-   by the v3 engine.
-3. **Existing dossiers do not migrate.** Section numbers, evidence tags (`[FACT]`/`[TRIANGULATED]`
-   → the `CONFIRMED`/`ANNOUNCED`/`OBSERVED-SIGNAL`/`INFERRED`/`UNKNOWN` enum), and appendix IDs
-   (A–L → §21.1–21.12) all change. `harness/blueprint/vantage-blueprint-v3.md` ends with a v2.2→v3
-   mapping table.
-
-## Configuration
-
-See [configuration reference](docs/configuration.md) for current model defaults, per-tier
-generation settings, runtime limits, and config migration. Runs default to
-`~/.cache/vantage/run`; migrate existing settings with `uv run vantage-engine config migrate`.
-
-## Develop
-
-```bash
-uv run python -m pytest -q      # 59 tests
-uv run ruff check src tests
-npm run typecheck
-```
-
-Edit dossier structure/prompts in `harness/` (read at runtime — no code change). Edit the pipeline
-in `src/vantage/`. Add a backend: implement `engine/Backend`, register in `engine/registry.py`.
+Contributions are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) for the development setup and
+the rules for changing the harness, and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md). Report security
+issues privately as described in [SECURITY.md](SECURITY.md). Questions: [SUPPORT.md](SUPPORT.md).
+Release history: [CHANGELOG.md](CHANGELOG.md) and [VERSION.md](VERSION.md).
 
 ## License
 
-Vantage is available under the [MIT License](LICENSE).
+[MIT](LICENSE).

@@ -1,9 +1,11 @@
 # Vantage v3.0.0 Harness
 
 The prompt library and execution graph that produce a Vantage dossier — *Verified Account Navigator: Targeting, Analysis & GTM Engine*. Implements
-`vantage-20260829.md` (Vantage Prompt Package v3.0.0, Vantage contributors).
+`vantage-20260829.md` (Vantage Prompt Package v3.0.0, Vantage contributors), kept for reference in
+[`docs/prompts/vantage-v1/`](../docs/prompts/vantage-v1/vantage-20260829.md).
 
-**Architecture and design rationale:** `ARCHITECTURE.md`.
+**Architecture and design rationale:** [`ARCHITECTURE.md`](ARCHITECTURE.md). User documentation:
+[`docs/`](../docs/README.md).
 
 ---
 
@@ -17,6 +19,8 @@ harness/
     id-allocation.md                  per-agent ID blocks; collision avoidance under parallelism
     briefs/_common.md                 shared preamble every brief inherits
     briefs/00-preflight.md … 28-assembly.md   one brief per agent
+    briefs/26a-remediation-router.md  P7R: turns verification findings into owner work orders
+    briefs/26b-remediation-pass.md    P7R: how an owner revises its own section
   blueprint/
     vantage-blueprint-v3.md               what each of the 22 sections contains
     section-contracts.md              who writes it · envelope · evidence bar · dependencies
@@ -28,6 +32,7 @@ harness/
     tooling-map.md                    section → where its evidence actually lives
   state/state.schema.json             schema 3.0 — the v3 handoff contract, extended
   workflows/vantage-v3.workflow.mjs       the Claude Code Workflow runner
+  export/                             the export harness (see export/README.md)
 ```
 
 The Markdown **is** the harness. The workflow script passes paths, never content — so you can edit
@@ -38,10 +43,13 @@ any brief, rubric, or contract without touching the runner.
 ### Through the CLI (recommended)
 
 ```bash
-vantage run --client "Acme Industries, Inc." --slug acme-2026-08
-vantage run -c "Acme" -s acme --tier EXECUTIVE
-vantage run -c "Acme" -s acme --capability-pack ATTACHED --input-sheet ATTACHED
+uv run vantage run --client "Acme Industries, Inc." --slug acme-2026-08
+uv run vantage run -c "Acme" -s acme --tier EXECUTIVE
+uv run vantage run -c "Acme" -s acme --capability-pack ATTACHED --input-sheet ATTACHED
+uv run vantage run -c "Acme" -s acme --remediation-rounds 2
 ```
+
+See [`docs/cli.md`](../docs/cli.md) for every option.
 
 ### Through Claude Code directly
 
@@ -88,6 +96,9 @@ one agent per owner with an order, a re-sync agent for each synthesis owner down
 rewritten section (up to five), one or two state re-merges, and a re-verification.
 
 ## Run output layout
+
+The workflow's own default `run_dir` is `runs/<slug>`; the CLI passes
+`<engine.output_dir>/<slug>` (default `~/.cache/vantage/run/<slug>`).
 
 ```
 runs/<slug>/
@@ -144,4 +155,4 @@ fields.
 | Overall Confidence `Insufficient` | Evidence base too thin for the tier | Reduce scope to `EXECUTIVE`, or extend budgets and re-run the topics §21.12 flags. |
 | §18 is thin after a full run | The adversarial audit refuted the claims the opportunities rested on | Working as intended. Read `qa/evidence-audit.json` — the refutations are the finding. |
 | Every organization field says `[INTERNAL…]` | No Capability Pack / Input Sheet attached | Expected. Attach them and re-run. |
-| `doctor` reports role_model_map drift | A user config predating v3 at `~/.config/vantage/default.json` | Update it, or delete it to fall back to the shipped template. |
+| `doctor` reports role_model_map drift | A user config predating v3 at `~/.config/vantage/default.json` | `vantage config migrate --dry-run`, then `vantage config migrate`. |
