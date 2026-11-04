@@ -12,7 +12,7 @@ keywords = ["vantage", "multi-agent", "research", "account-intelligence", "llm"]
 # Heavier framework backends and cloud SDKs are optional extras below, because installing
 # LangGraph + ADK + CrewAI together frequently produces transitive-version conflicts.
 dependencies = [
-  "anthropic>=0.121",
+  "anthropic>=2.3.0",
   "openai>=2.54",
   "google-genai>=2.31.0",
   "pydantic>=2.14.1",
