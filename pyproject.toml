@@ -54,7 +54,7 @@ export = [
   "matplotlib>=3.9",
   "numpy>=2.5.4",
   "pypdf>=6.21.1",
-  "pillow>=11.0",
+  "pillow>=13.0.0",
   "plotly>=6.0",
 ]
 
